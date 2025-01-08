@@ -1,30 +1,19 @@
 import * as React from "react";
 import { useState } from "react";
-import Sheet from "@mui/joy/Sheet";
-import CssBaseline from "@mui/joy/CssBaseline";
 import Typography from "@mui/joy/Typography";
-import FormControl from "@mui/joy/FormControl";
-import FormLabel from "@mui/joy/FormLabel";
-import Link from "@mui/joy/Link";
-import Box from "@mui/joy/Box";
-import FormHelperText from "@mui/joy/FormHelperText";
-import { createRoot } from "react-dom/client";
 import { Rnd } from "react-rnd";
-import Select, { selectClasses } from "@mui/joy/Select";
-import Option from "@mui/joy/Option";
-import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
+import { v4 as uuidv4 } from 'uuid';
 import Slider from "@mui/joy/Slider";
 import Button from "@mui/joy/Button";
+import Select from "@mui/joy/Select";
 import Input from "@mui/joy/Input";
 import Stack from "@mui/joy/Stack";
-
-const style = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  border: "solid 1px #ddd",
-  background: "#f0f0f0",
-} as const;
+import Option from '@mui/joy/Option';
+import List, { ListProps } from '@mui/joy/List';
+import ListItem from '@mui/joy/ListItem';
+import Radio from '@mui/joy/Radio';
+import RadioGroup from '@mui/joy/RadioGroup';
+import { Box, Chip } from '@mui/joy';
 
 const marks = [
   {
@@ -42,6 +31,8 @@ const marks = [
 ];
 
 type Item = {
+  id: string;
+  shape: string;
   name: string;
   xValue: number;
   yValue: number;
@@ -50,6 +41,8 @@ type Item = {
 };
 
 type Desk = {
+  id: string;
+  shape: string;
   name: string;
   specialAccommodations: string[];
   xValue: number;
@@ -69,49 +62,113 @@ export default function SeatingChart() {
   const [items, setItems] = useState(initialItems);
   const initialDesks: Desk[] = [];
   const [desks, setDesks] = useState(initialDesks);
-  /*
-	item = 
-	{
-	name,
-	specialAccomidations,
-	x,
-	y,
-	width,
-	height
-	}
-	setItems([...items, {name:"Student name", specialAccommodations, xValue, yValue:, widthValue:20, heightValue: 20}])
-	*/
+  const [objToAdd, setObjToAdd] = useState("Placeholder");
+  const [objWidth, setObjWidth] = useState(50);
+  const [objHeight, setObjHeight] = useState(50);
+  const [objX, setObjX] = useState(100);
+  const [objY, setObjY] = useState(100);
+  const [objShapeToAdd, setObjShapeToAdd] = useState("rectangle");
+  const [objLabel, setObjLabel] = useState("Label");
+  const [objAccomidations, setObjAccomidations] = useState([]);
+
+
   const updateHeight = (e: any) => {
     setHeight(e.target.value);
   };
   const updateWidth = (e: any) => {
     setWidth(e.target.value);
   };
+  const updateObjHeight = (e: any) => {
+    setObjHeight(parseInt(e.target.value, 10) || 50);
+  };
+  const updateObjWidth = (e: any) => {
+    setObjWidth(parseInt(e.target.value, 10) || 50);
+  };
 
-  const addItem = (e: any) => {
+  const updateObjShape = (e: any) => {
+    setObjShapeToAdd(e.target.value);
+  };
+  
+  const updateObjAccomidations = (e: any) => {
+    setObjAccomidations(e.target.value);
+  };
+  const updateObjLabel = (e: any) => {
+    setObjLabel(e.target.value);
+  };
+  const updateObjX = (e: any) => {
+    setObjX(parseInt(e.target.value, 10) || 50);
+  };
+  const updateObjY = (e: any) => {
+    setObjY(parseInt(e.target.value, 10) || 50);
+  };
+
+  const addItem = () => {
     let item: Item = {
-      name: "Item",
-      xValue: 50,
-      yValue: 50,
-      widthValue: 20,
-      heightValue: 20,
+      id: uuidv4(),
+      shape: objShapeToAdd,
+      name: objLabel,
+      xValue: objX,
+      yValue: objY,
+      widthValue: objWidth,
+      heightValue: objHeight,
     };
     setItems([...items, item]);
   };
 
-  const addDesk = (e: any) => {
+  const addDesk = () => {
+    const accomidationElement = document.getElementById('specialAccommodations');
+    let accomidations:string[];
+    if (accomidationElement) {
+      accomidations = Array.from(accomidationElement.querySelectorAll('[aria-selected="true"]')).map((option) => option.getAttribute('data-value')).filter((value): value is string => value !== null);
+    } else {
+      accomidations = [];
+    }
+    
     let desk: Desk = {
-      name: "Student",
-      specialAccommodations: [],
-      xValue: 50,
-      yValue: 50,
-      widthValue: 20,
-      heightValue: 20,
+      id: uuidv4(),
+      shape: objShapeToAdd,
+      name: objLabel,
+      specialAccommodations: objAccomidations,
+      xValue: objX,
+      yValue: objY,
+      widthValue: objWidth,
+      heightValue: objHeight,
     };
-    setItems([...desks, desk]);
+    setDesks([...desks, desk]);
   };
 
+  const clearItems = () => {
+    let clear = window.confirm("Are you sure you want to delete ALL items?");
+    if (clear) {
+      setItems([]);
+    }
+  }
+
+  const clearDesks = () => {
+    let clear = window.confirm("Are you sure you want to delete ALL desks?");
+    if (clear) {
+      setDesks([]);
+    }
+  }
+
+  const addObj = (e: any) => {
+    if (objToAdd === "placeholder") {
+      addItem();
+    } else {
+      addDesk();
+    }
+  }
+
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const handleChange = (
+    event: React.SyntheticEvent | null,
+    newValue: string | null
+  ) => {
+    if (newValue != null) { 
+      setObjToAdd(newValue);
+
+    } 
+  };
 
   return (
     <Box
@@ -161,7 +218,7 @@ export default function SeatingChart() {
           getAriaValueText={valueText}
           step={50}
           min={100}
-          max={900}
+          max={1200}
           color="neutral"
           valueLabelDisplay="auto"
           onChange={updateWidth}
@@ -175,32 +232,128 @@ export default function SeatingChart() {
           getAriaValueText={valueText}
           step={50}
           min={100}
-          max={900}
+          max={1200}
           color="neutral"
           valueLabelDisplay="auto"
           marks={marks}
           onChange={updateHeight}
         />
-        <Button variant="solid" sx={{ marginTop: "30px" }} onClick={addItem}>
-          Add Item
-        </Button>
-        <Box>
-					<Typography sx={{ margin: "15px" }} level='title-lg'>Item:</Typography>
-					<Box
-                sx={{
-							margin: "5px",
-							display: "flex",
-									
-                  justifyContent: "center",
-							alignItems: "center",
-									
-                }}
-              >
-                <Typography sx={{ textSize: "10px", margin:"15px" }}>Label :</Typography>
-						<Input sx={{ fieldSizing: "content", width:"250px"}} placeholder="Label" />
-              </Box>
-          <Typography level="body-md" sx={{marginBottom:"10px"}} >Positions (Horizontal and Vertical):</Typography>
-          <Stack spacing={1.5} sx={{ minWidth: 300, marginBottom:"20px" }}>
+
+        <Box sx={{ minWidth: 240}}>
+      <Box
+        sx={{
+          mb: 2,
+          display: 'flex',
+          justifyContent: 'space-between',
+              alignItems: 'center',
+          width:"100%"
+        }}
+      >
+      </Box>
+      <RadioGroup
+        aria-labelledby="example-payment-channel-label"
+        overlay
+        name="example-payment-channel"
+            defaultValue="placeholder"
+            sx={{alignItems: 'center', justifyContent:"center"}}
+      >
+        <List
+          component="div"
+          variant="outlined"
+          orientation={"horizontal"}
+          sx={{border:"none"}}
+        >
+          {['placeholder', 'desk'].map((value, index) => (
+            <React.Fragment key={value}>
+              <ListItem>
+                <Radio id={value} value={value} label={value} onClick={()=>{setObjToAdd(value)}} />
+              </ListItem>
+            </React.Fragment>
+          ))}
+        </List>
+      </RadioGroup>
+    </Box>
+        <Box
+        sx = {{backgroundColor:"green"}}>
+          <Box
+            sx={{
+              margin: "5px",
+              display: "flex",
+              flexDirection:"column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <RadioGroup
+        aria-labelledby="example-payment-channel-label"
+        overlay
+        name="example-payment-channel"
+            defaultValue="placeholder"
+            sx={{alignItems: 'center', justifyContent:"center"}}
+      >
+        <List
+          component="div"
+          variant="outlined"
+          orientation={"horizontal"}
+          sx={{border:"none"}}
+        >
+          {['circle', 'rectangle'].map((value, index) => (
+            <React.Fragment key={value}>
+              <ListItem>
+                <Radio id={value} value={value} label={value} onClick={()=>{setObjShapeToAdd(value)}} />
+              </ListItem>
+            </React.Fragment>
+          ))}
+        </List>
+      </RadioGroup>
+            {objToAdd === "desk"
+              ? <Box sx={{ display: "inline-block", margin: "10px" }}>
+                <Typography sx={{ textSize: "9px", marginBottom: "10px" }}>
+              Special Accomidations :
+            </Typography>
+                <Select
+                  multiple
+                  sx={{maxWidth:"100%"}}
+        defaultValue={['plan504', 'fs']}
+        renderValue={(selected) => (
+          <Box sx={{ display: 'flex', gap: '0.25rem' , margin:"0px"}}>
+            {selected.map((selectedOption) => (
+              <Chip variant="soft" color="primary">
+                {selectedOption.label}
+              </Chip>
+            ))}
+          </Box>
+        )}
+        slotProps={{
+          listbox: {
+            sx: {
+              minWidth: '150px',
+              maxWidth:"100%"
+            },
+          },
+        }}
+                  id="specialAccomidations"
+      >
+        <Option value="plan504">504 Plan</Option>
+        <Option value="esl">English as a Second Language</Option>
+        <Option value="fs">Front Seat</Option>
+      </Select></Box>
+        : <Box></Box>
+      }
+            <Typography sx={{ textSize: "9px", marginBottom: "10px" }}>
+              Label :
+            </Typography>
+            <Input
+              sx={{ fieldSizing: "content", width: "250px" }}
+              // value={objLabel}
+              placeholder="Label"
+              onChange={updateObjLabel}
+            />
+          </Box>
+          <Typography level="body-md" sx={{ marginBottom: "9px" }}>
+            Positions (Horizontal and Vertical):
+          </Typography>
+          <Stack spacing={1.5} sx={{ minWidth: 300, marginBottom: "20px" }}>
             <Box
               sx={{
                 margin: "5px",
@@ -215,6 +368,7 @@ export default function SeatingChart() {
               <Input
                 type="number"
                 defaultValue={50}
+                // value={objX}
                 slotProps={{
                   input: {
                     ref: inputRef,
@@ -223,10 +377,12 @@ export default function SeatingChart() {
                     step: 1,
                   },
                 }}
+                onChange={updateObjX}
               />
               <Input
                 type="number"
                 defaultValue={50}
+                // value={objY}
                 slotProps={{
                   input: {
                     ref: inputRef,
@@ -235,11 +391,14 @@ export default function SeatingChart() {
                     step: 1,
                   },
                 }}
+                onChange={updateObjY}
               />
             </Box>
-					</Stack>
-					<Typography level="body-md" sx={{marginBottom:"10px"}}>Dimensions (Width and Height):</Typography>
-          <Stack spacing={1.5} sx={{ minWidth: 300, marginBottom:"20px" }}>
+          </Stack>
+          <Typography level="body-md" sx={{ marginBottom: "9px" }}>
+            Dimensions (Width and Height):
+          </Typography>
+          <Stack spacing={1.5} sx={{ minWidth: 300, marginBottom: "20px" }}>
             <Box
               sx={{
                 margin: "5px",
@@ -254,6 +413,7 @@ export default function SeatingChart() {
               <Input
                 type="number"
                 defaultValue={50}
+                // value={objWidth}
                 slotProps={{
                   input: {
                     ref: inputRef,
@@ -262,10 +422,12 @@ export default function SeatingChart() {
                     step: 1,
                   },
                 }}
+                onChange={updateObjWidth}
               />
               <Input
                 type="number"
                 defaultValue={50}
+                // value={objHeight}
                 slotProps={{
                   input: {
                     ref: inputRef,
@@ -274,24 +436,84 @@ export default function SeatingChart() {
                     step: 1,
                   },
                 }}
+                onChange={updateObjHeight}
               />
             </Box>
           </Stack>
         </Box>
+        <Box sx={{ display: "flex", flexDirection: "column",  alignItems:"center" }}>
+        <Button variant="solid" onClick={addObj} sx={{width:"50px"}}>
+          Add
+          </Button>
+          <Box sx={{display:"flex", justifyContent:"space-between", margin:"15px", width:"100%"}}>
+        <Button variant="solid" onClick={clearItems} sx={{width:"175px", marginLeft:"15px"}}>
+          Clear Placeholders
+        </Button>
+        <Button variant="solid" onClick={clearDesks} sx={{width:"175px", marginRight:"15px"}}>
+          Clear Desks
+            </Button>
+            </Box>
+        </Box>
       </Box>
-      {items.map((element: Item) => {
+      {/* .slice().reverse() */}
+      {desks.map((element: Desk, indexCurr: number) => {
         return (
           <Rnd
-            style={style}
+          key={`desk-${element.id}`}
             bounds="parent"
-            default={{
-              x: 50,
-              y: 50,
-              width: 200,
-              height: 200,
-            }}
+            style={{  display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "solid 1px #ddd",
+              background: "#f0f0f0", borderRadius: element.shape === 'rectangle' ? '0px' : '200px'}}
+            size={{ width: element.widthValue, height: element.heightValue }}
+    position={{ x: element.xValue, y: element.yValue }}
+            onDragStop={(e, d) => {  setDesks(desks.map((val: Desk, index2: number) => {
+              if (val.id === element.id) {
+                return { ...val, xValue: d.x, yValue: d.y };
+              } 
+              return val;
+          })) }}
+            onResizeStop={(e, direction, ref, delta, position) => {
+              setDesks(desks.map((val: Desk, index2: number) => {
+                if (val.id === element.id) {
+                  return { ...val, widthValue: parseInt(ref.style.width, 10), heightValue: parseInt(ref.style.height, 10) };
+                } 
+                return val;
+            })) }}
           >
-            Rndhjjbuyb
+            <Typography sx={{fontSize:"12px", color:"black"}}>{element.name}</Typography>
+          </Rnd>
+        );
+      })}
+      {/* .slice().reverse() */}
+       {items.map((element: Item, indexCurr: number) => {
+        return (
+          <Rnd
+          key={`desk-${element.id}`}
+          style={{  display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "solid 1px #ddd",
+            background: "#f0f0f0", borderRadius: element.shape === 'rectangle' ? '0px' : '200px'}}
+            bounds="parent"
+            size={{ width: element.widthValue, height: element.heightValue }}
+    position={{ x: element.xValue, y: element.yValue }}
+            onDragStop={(e, d) => {  setItems(items.map((val: Item, index2: number) => {
+              if (val.id === element.id) {
+                return { ...val, xValue: d.x, yValue: d.y };
+            }
+            return val;
+          })) }}
+            onResizeStop={(e, direction, ref, delta, position) => {
+              setItems(items.map((val: Item, index2: number) => {
+                if (val.id === element.id) {
+                  return { ...val, widthValue: parseInt(ref.style.width, 10), heightValue: parseInt(ref.style.height, 10) };
+                } 
+                return val;
+            })) }}
+          >
+            <Typography sx={{fontSize:"12px", color:"black"}}>{element.name}</Typography>
           </Rnd>
         );
       })}
