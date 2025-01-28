@@ -586,24 +586,23 @@ export default function SeatingChart() {
             size={{ width: element.widthValue, height: element.heightValue }}
             position={{ x: element.xValue, y: element.yValue }}
             onDragStop={(e, d) => {
-              setItems(items.map((val: Item, index2: number) => {
-                if (val.getId() === element.getId()) {
-                  element.setXValue(d.x);
-                  element.setYValue(d.y);
-                  return element;
-                }
-                return val;
+              setItems(items.map((val: Item) => {
+                return val.id === element.id
+                  ? new Item(val.getId(), val.getShape(), val.getName(), d.x, d.y, val.getWidthValue(), val.getHeightValue())
+                  : val
               }))
+                // element  = new Item(element.getId(), element.getShape(), element.getName(), d.x, d.y, element.getWidthValue(), element.getHeightValue());
+            // }
+              // ))
             }}
             onResizeStop={(e, direction, ref, delta, position) => {
-              setItems(items.map((val: Item, index2: number) => {
-                if (val.getId() === element.getId()) {
-                  element.setWidthValue(parseInt(ref.style.width, 10));
-                  element.setHeightValue(parseInt(ref.style.height, 10));
-                  return element;
-                }
-                return val;
-              }))
+              // setItems(items.map((val: Item, index2: number) => {
+              //   if (val.getId() === element.getId()) {
+              //     return new Item(val.getId(), val.getShape(), val.getName(), val.getXValue(), val.getYValue(), parseInt(ref.style.width, 10), parseInt(ref.style.height,10));
+              //   }
+              //   return val;
+              // }))
+              element  = new Item(element.getId(), element.getShape(), element.getName(),  position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10));
             }}
           >
             <Typography sx={{ fontSize: "12px", color: "black" }}>{element.name}</Typography>
