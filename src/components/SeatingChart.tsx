@@ -13,7 +13,12 @@ import List, { ListProps } from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
+import Textarea from '@mui/joy/Textarea';
+
 import { Box, Chip } from '@mui/joy';
+import Modal from '@mui/joy/Modal';
+import ModalClose from '@mui/joy/ModalClose';
+import Sheet from '@mui/joy/Sheet';
 
 const marks = [
   {
@@ -84,6 +89,7 @@ class Item {
   setShape(newShape: string) {
     this.shape = newShape;
   }
+  
   setId() {
     return this.id;
   }
@@ -125,7 +131,7 @@ class Desk extends Item {
   getAccomidations() {
     return this.accomidations;
   }
-  
+
 }
 
 
@@ -150,6 +156,8 @@ export default function SeatingChart() {
   const [objAccomidations, setObjAccomidations] = useState([]);
   const [currItem, setCurrItem] = useState();
   const [currDesk, setCurrDesk] = useState();
+  const [open, setOpen] = React.useState<boolean>(false);
+  const [studentsToAdd, setStudentsToAdd] = useState('');
 
 
   const updateHeight = (e: any) => {
@@ -182,13 +190,6 @@ export default function SeatingChart() {
     setObjY(parseInt(e.target.value, 10) || 50);
   };
 
-  // const updateCurrentThingToChange = (item: any) => {
-  //   // setItemToChange
-  //   if (item is Item) {
-
-  //   }
-  // };
-
   const addItem = () => {
     setItems([...items, new Item(uuidv4(),
       objShapeToAdd,
@@ -208,8 +209,8 @@ export default function SeatingChart() {
       accomidations = [];
     }
 
-    
-    setDesks([...desks, new Desk(uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, objAccomidations)]);
+
+    setDesks((prevDesks: Desk[]) => [...prevDesks, new Desk(uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, objAccomidations)]);
   };
 
   const clearItems = () => {
@@ -224,6 +225,37 @@ export default function SeatingChart() {
     if (clear) {
       setDesks([]);
     }
+  }
+
+  const setStudents = () => {
+    let studentArr = studentsToAdd.split('\n');
+    if (studentArr.length > desks.length) {
+    let desksToAdd: Desk[] = [];
+      let numberOfDesksToAdd = studentArr.length - desks.length;;
+
+  
+      for (let i = 0; i < numberOfDesksToAdd; i++){
+        desksToAdd.push(new Desk(uuidv4(), "rectangle", "student", 50, 50, 50, 50, []));
+        
+      }
+      setDesks((prevDesks: Desk[]) =>[...prevDesks, ...desksToAdd]);//make sure there are no concurrent timing issues
+  }
+  
+
+    setDesks((prevDesks: Desk[]) => 
+      prevDesks.map((desk, i) => {
+        console.log("mapping...");
+        let deskCopy = new Desk(desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations());
+        if (i < studentArr.length) {
+          console.log("just set : " + studentArr[i]);
+          deskCopy.setName(studentArr[i]);
+        } else {
+          deskCopy.setName("");
+        }
+        return deskCopy;
+      })
+    );
+
   }
 
   const addObj = (e: any) => {
@@ -285,6 +317,50 @@ export default function SeatingChart() {
           textAlign: "center",
         }}
       >
+        <Button variant="outlined" color="neutral" onClick={() => setOpen(true)}>
+          Import Students
+        </Button>
+        <Modal
+          aria-labelledby="modal-title"
+          aria-describedby="modal-desc"
+          open={open}
+          onClose={() => setOpen(false)}
+          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+        >
+          <Sheet
+            variant="outlined"
+            sx={{ maxWidth: 500, borderRadius: 'md', p: 3, boxShadow: 'lg' }}
+          >
+            <ModalClose variant="plain" sx={{ m: 1 }} />
+            <Typography
+              component="h2"
+              id="modal-title"
+              level="h4"
+              textColor="inherit"
+              sx={{ fontWeight: 'lg', mb: 1 }}
+            >
+              Import Students
+            </Typography>
+            <Typography id="modal-desc" textColor="text.tertiary">
+              Please keep in mind that importing students will override current students. Proceed with caution.
+            </Typography>
+
+              <Stack spacing={1}>
+                <Textarea
+                  placeholder="Enter students here, seperated by new lines."
+                  minRows={3}
+                  maxRows={6}
+                  variant="outlined"
+                  onChange={(event) => {
+                    setStudentsToAdd(event.target.value);
+                  }}
+                  required
+                  id="student_input"
+                />
+              <Button type="submit" onClick={() => { setStudents();  setOpen(false)}}>Submit</Button>
+              </Stack>
+          </Sheet>
+        </Modal>
         <Typography sx={{ margin: "5px" }}>Width : </Typography>
         <Slider
           sx={{ width: "300px", margin: "5px", marginLeft: "15px" }}
@@ -546,24 +622,22 @@ export default function SeatingChart() {
             size={{ width: element.widthValue, height: element.heightValue }}
             position={{ x: element.xValue, y: element.yValue }}
             onDragStop={(e, d) => {
-              setDesks(desks.map((val: Desk, index2: number) => {
-                if (val.getId() === element.getId()) {
-                  element.setXValue(d.x);
-                  element.setYValue(d.y);
-                  return element;
-                }
-                return val;
-              }))
+              setDesks((prevDesks: Desk[]) =>
+                prevDesks.map((desk: Desk) =>
+                  desk.id === element.id
+                    ? new Desk(desk.getId(), desk.getShape(), desk.getName(), d.x, d.y, desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations())
+                    : desk
+                )
+              );
             }}
             onResizeStop={(e, direction, ref, delta, position) => {
-              setDesks(desks.map((val: Desk, index2: number) => {
-                if (val.getId() === element.getId()) {
-                  element.setWidthValue(parseInt(ref.style.width, 10));
-                  element.setHeightValue(parseInt(ref.style.height, 10));
-                  return element;
-                }
-                return val;
-              }))
+              setDesks((prevDesks: Desk[]) =>
+                prevDesks.map((desk: Desk) =>
+                  desk.id === element.id
+                    ? new Desk(desk.getId(), desk.getShape(), desk.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), desk.getAccomidations())
+                    : desk
+                )
+              );
             }}
           >
             <Typography sx={{ fontSize: "12px", color: "black" }}>{element.name}</Typography>
@@ -586,23 +660,22 @@ export default function SeatingChart() {
             size={{ width: element.widthValue, height: element.heightValue }}
             position={{ x: element.xValue, y: element.yValue }}
             onDragStop={(e, d) => {
-              setItems(items.map((val: Item) => {
-                return val.id === element.id
-                  ? new Item(val.getId(), val.getShape(), val.getName(), d.x, d.y, val.getWidthValue(), val.getHeightValue())
-                  : val
-              }))
-                // element  = new Item(element.getId(), element.getShape(), element.getName(), d.x, d.y, element.getWidthValue(), element.getHeightValue());
-            // }
-              // ))
+              setItems((prevItems: Item[]) =>
+                prevItems.map((item: Item) =>
+                  item.id === element.id
+                    ? new Item(item.getId(), item.getShape(), item.getName(), d.x, d.y, item.getWidthValue(), item.getHeightValue())
+                    : item
+                )
+              );
             }}
             onResizeStop={(e, direction, ref, delta, position) => {
-              // setItems(items.map((val: Item, index2: number) => {
-              //   if (val.getId() === element.getId()) {
-              //     return new Item(val.getId(), val.getShape(), val.getName(), val.getXValue(), val.getYValue(), parseInt(ref.style.width, 10), parseInt(ref.style.height,10));
-              //   }
-              //   return val;
-              // }))
-              element  = new Item(element.getId(), element.getShape(), element.getName(),  position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10));
+              setItems((prevItems: Item[]) =>
+                prevItems.map((item: Item) =>
+                  item.id === element.id
+                    ? new Item(item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10))
+                    : item
+                )
+              );
             }}
           >
             <Typography sx={{ fontSize: "12px", color: "black" }}>{element.name}</Typography>
