@@ -89,7 +89,7 @@ class Item {
   setShape(newShape: string) {
     this.shape = newShape;
   }
-  
+
   setId() {
     return this.id;
   }
@@ -146,7 +146,7 @@ export default function SeatingChart() {
   const [items, setItems] = useState(initialItems);
   const initialDesks: Desk[] = [];
   const [desks, setDesks] = useState(initialDesks);
-  const [objToAdd, setObjToAdd] = useState("Placeholder");
+  const [objToAdd, setObjToAdd] = useState("placeholder");
   const [objWidth, setObjWidth] = useState(50);
   const [objHeight, setObjHeight] = useState(50);
   const [objX, setObjX] = useState(100);
@@ -191,6 +191,7 @@ export default function SeatingChart() {
   };
 
   const addItem = () => {
+    console.log("id for adding :" , uuidv4());
     setItems([...items, new Item(uuidv4(),
       objShapeToAdd,
       objLabel,
@@ -202,6 +203,7 @@ export default function SeatingChart() {
 
   const addDesk = () => {
     const accomidationElement = document.getElementById('specialAccommodations');
+    console.log("id for adding :" , uuidv4());
     let accomidations: string[];
     if (accomidationElement) {
       accomidations = Array.from(accomidationElement.querySelectorAll('[aria-selected="true"]')).map((option) => option.getAttribute('data-value')).filter((value): value is string => value !== null);
@@ -226,23 +228,48 @@ export default function SeatingChart() {
       setDesks([]);
     }
   }
+  const setItemData = (item: Item) => {
+    // console.log("setting data");
+    // alert("calling item data");
+    setObjToAdd("placeholder");
+    setObjShapeToAdd(item.getShape());
+    setObjLabel(item.getName());
+    setObjX(item.getXValue());
+    setObjY(item.getYValue());
+    // alert(item.getWidthValue());
+    setObjWidth(item.getWidthValue());
+    setObjHeight(item.getHeightValue());
+  }
+
+  const setDeskData = (desk: Desk) => {
+    // console.log("setting data");
+    // alert("calling desk data");
+    setObjToAdd("desk");
+    setObjShapeToAdd(desk.getShape());
+    setObjLabel(desk.getName());
+    setObjX(desk.getXValue());
+    setObjY(desk.getYValue());
+    setObjWidth(desk.getWidthValue());
+    setObjHeight(desk.getHeightValue());
+    // setObjAccomidations(desk.getAccomidations() || []);
+  }
 
   const setStudents = () => {
     let studentArr = studentsToAdd.split('\n');
     if (studentArr.length > desks.length) {
-    let desksToAdd: Desk[] = [];
+      let desksToAdd: Desk[] = [];
       let numberOfDesksToAdd = studentArr.length - desks.length;;
 
-  
-      for (let i = 0; i < numberOfDesksToAdd; i++){
-        desksToAdd.push(new Desk(uuidv4(), "rectangle", "student", 50, 50, 50, 50, []));
-        
-      }
-      setDesks((prevDesks: Desk[]) =>[...prevDesks, ...desksToAdd]);//make sure there are no concurrent timing issues
-  }
-  
 
-    setDesks((prevDesks: Desk[]) => 
+      for (let i = 0; i < numberOfDesksToAdd; i++) {
+        desksToAdd.push(new Desk(uuidv4(), objShapeToAdd, "student", objX, objY, objWidth, objHeight, []));
+
+      }
+      setDesks((prevDesks: Desk[]) => [...prevDesks, ...desksToAdd]);//make sure there are no concurrent timing issues
+    }
+
+
+    setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
         console.log("mapping...");
         let deskCopy = new Desk(desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations());
@@ -259,6 +286,7 @@ export default function SeatingChart() {
   }
 
   const addObj = (e: any) => {
+    // alert(objToAdd);
     if (objToAdd === "placeholder") {
       addItem();
     } else {
@@ -345,20 +373,20 @@ export default function SeatingChart() {
               Please keep in mind that importing students will override current students. Proceed with caution.
             </Typography>
 
-              <Stack spacing={1}>
-                <Textarea
-                  placeholder="Enter students here, seperated by new lines."
-                  minRows={3}
-                  maxRows={6}
-                  variant="outlined"
-                  onChange={(event) => {
-                    setStudentsToAdd(event.target.value);
-                  }}
-                  required
-                  id="student_input"
-                />
-              <Button type="submit" onClick={() => { setStudents();  setOpen(false)}}>Submit</Button>
-              </Stack>
+            <Stack spacing={1}>
+              <Textarea
+                placeholder="Enter students here, seperated by new lines."
+                minRows={3}
+                maxRows={6}
+                variant="outlined"
+                onChange={(event) => {
+                  setStudentsToAdd(event.target.value);
+                }}
+                required
+                id="student_input"
+              />
+              <Button type="submit" onClick={() => { setStudents(); setOpen(false) }}>Submit</Button>
+            </Stack>
           </Sheet>
         </Modal>
         <Typography sx={{ margin: "5px" }}>Width : </Typography>
@@ -496,7 +524,7 @@ export default function SeatingChart() {
             </Typography>
             <Input
               sx={{ fieldSizing: "content", width: "250px" }}
-              // value={objLabel}
+              value={objLabel}
               placeholder="Label"
               onChange={updateObjLabel}
             />
@@ -518,8 +546,8 @@ export default function SeatingChart() {
             >
               <Input
                 type="number"
-                defaultValue={50}
-                // value={objX}
+                // defaultValue={50}
+                value={objX}
                 slotProps={{
                   input: {
                     ref: inputRef,
@@ -532,8 +560,8 @@ export default function SeatingChart() {
               />
               <Input
                 type="number"
-                defaultValue={50}
-                // value={objY}
+                // defaultValue={50}
+                value={objY}
                 slotProps={{
                   input: {
                     ref: inputRef,
@@ -563,8 +591,8 @@ export default function SeatingChart() {
             >
               <Input
                 type="number"
-                defaultValue={50}
-                // value={objWidth}
+                // defaultValue={50}
+                value={objWidth}
                 slotProps={{
                   input: {
                     ref: inputRef,
@@ -577,8 +605,8 @@ export default function SeatingChart() {
               />
               <Input
                 type="number"
-                defaultValue={50}
-                // value={objHeight}
+                // defaultValue={50}
+                value={objHeight}
                 slotProps={{
                   input: {
                     ref: inputRef,
@@ -610,7 +638,7 @@ export default function SeatingChart() {
       {desks.map((element: Desk, indexCurr: number) => {
         return (
           <Rnd
-            key={`desk-${element.id}`}
+            key={element.id}
             bounds="parent"
             style={{
               display: "flex",
@@ -621,7 +649,17 @@ export default function SeatingChart() {
             }}
             size={{ width: element.widthValue, height: element.heightValue }}
             position={{ x: element.xValue, y: element.yValue }}
+            onClick={(e:any) => { console.log("Mouse down event triggered");
+            // e.preventDefault();
+            // e.stopPropagation();
+              setDeskData(element);
+              // alert("hello");
+              // console.log("clicked");
+            }}
+  
+
             onDragStop={(e, d) => {
+              setDeskData(element);
               setDesks((prevDesks: Desk[]) =>
                 prevDesks.map((desk: Desk) =>
                   desk.id === element.id
@@ -631,6 +669,7 @@ export default function SeatingChart() {
               );
             }}
             onResizeStop={(e, direction, ref, delta, position) => {
+              setDeskData(element);
               setDesks((prevDesks: Desk[]) =>
                 prevDesks.map((desk: Desk) =>
                   desk.id === element.id
@@ -646,40 +685,55 @@ export default function SeatingChart() {
       })}
       {/* .slice().reverse() */}
       {items.map((element: Item, indexCurr: number) => {
+        console.log("rendering : ", element.id);
+        // setItemData(element);
         return (
-          <Rnd
-            key={`desk-${element.id}`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "solid 1px #ddd",
-              background: "#f0f0f0", borderRadius: element.shape === 'rectangle' ? '0px' : '200px'
-            }}
-            bounds="parent"
-            size={{ width: element.widthValue, height: element.heightValue }}
+          // <Box sx={{ margin: "0px", padding: "0px" }} key={`box-${element.id}`}
+            <Rnd
+            key={element.id}
+         
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "solid 1px #ddd",
+                background: "#f0f0f0", borderRadius: element.shape === 'rectangle' ? '0px' : '200px'
+              }}
+              bounds="parent"
+              size={{ width: element.widthValue, height: element.heightValue }}
             position={{ x: element.xValue, y: element.yValue }}
+            onClick={(e:any) => { console.log("Mouse down event triggered");
+            // e.preventDefault();
+            // e.stopPropagation();
+              setItemData(element);
+              // alert("hello");
+            console.log("clicked");}}
+
             onDragStop={(e, d) => {
-              setItems((prevItems: Item[]) =>
-                prevItems.map((item: Item) =>
-                  item.id === element.id
-                    ? new Item(item.getId(), item.getShape(), item.getName(), d.x, d.y, item.getWidthValue(), item.getHeightValue())
-                    : item
-                )
-              );
-            }}
+              setItemData(element);
+                setItems((prevItems: Item[]) =>
+                  prevItems.map((item: Item) =>
+                    item.id === element.id
+                      ? new Item(item.getId(), item.getShape(), item.getName(), d.x, d.y, item.getWidthValue(), item.getHeightValue())
+                      : item
+                  )
+                );
+              }}
             onResizeStop={(e, direction, ref, delta, position) => {
-              setItems((prevItems: Item[]) =>
-                prevItems.map((item: Item) =>
-                  item.id === element.id
-                    ? new Item(item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10))
-                    : item
-                )
-              );
-            }}
-          >
-            <Typography sx={{ fontSize: "12px", color: "black" }}>{element.name}</Typography>
-          </Rnd>
+              setItemData(element);
+                setItems((prevItems: Item[]) =>
+                  prevItems.map((item: Item) =>
+                    item.id === element.id
+                      ? new Item(item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10))
+                      : item
+                  )
+                );
+              }}
+              
+            >
+              <Typography sx={{ fontSize: "12px", color: "black" }}>{element.name}</Typography>
+            </Rnd>
+          // </Box>
         );
       })}
     </Box>
