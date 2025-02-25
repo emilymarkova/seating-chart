@@ -9,7 +9,7 @@ import Select from "@mui/joy/Select";
 import Input from "@mui/joy/Input";
 import Stack from "@mui/joy/Stack";
 import Option from '@mui/joy/Option';
-import List, { ListProps } from '@mui/joy/List';
+import List from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
@@ -154,8 +154,8 @@ export default function SeatingChart() {
   const [objShapeToAdd, setObjShapeToAdd] = useState("rectangle");
   const [objLabel, setObjLabel] = useState("Label");
   const [objAccomidations, setObjAccomidations] = useState([]);
-  const [currItem, setCurrItem] = useState();
-  const [currDesk, setCurrDesk] = useState();
+  const [currItem, setCurrItem] = useState<Item>();
+  const [currDesk, setCurrDesk] = useState<Desk>();
   const [open, setOpen] = React.useState<boolean>(false);
   const [studentsToAdd, setStudentsToAdd] = useState('');
 
@@ -168,30 +168,65 @@ export default function SeatingChart() {
   };
   const updateObjHeight = (e: any) => {
     setObjHeight(parseInt(e.target.value, 10) || 50);
+    if (currDesk !== undefined) {
+      currDesk.setHeightValue(e.target.value);
+    } else if (currItem !== undefined) {
+      currItem.setHeightValue(e.target.value);
+    }
   };
   const updateObjWidth = (e: any) => {
     setObjWidth(parseInt(e.target.value, 10) || 50);
+    if (currDesk !== undefined) {
+      currDesk.setWidthValue(e.target.value);
+    } else if (currItem !== undefined) {
+      currItem.setWidthValue(e.target.value);
+    }
   };
 
   const updateObjShape = (e: any) => {
     setObjShapeToAdd(e.target.value);
+    if (currDesk !== undefined) {
+
+      currDesk.setShape(e.target.value);
+    } else if (currItem !== undefined) {
+      currItem.setShape(e.target.value);
+    }
   };
 
   const updateObjAccomidations = (e: any) => {
     setObjAccomidations(e.target.value);
+    if (currDesk !== undefined) {
+      currDesk.setAccomidations(e.target.value);
+    }
   };
   const updateObjLabel = (e: any) => {
     setObjLabel(e.target.value);
+    if (currDesk !== undefined) {
+      currDesk.setName(e.target.value);
+    } else if (currItem !== undefined) {
+      currItem.setName(e.target.value);
+    }
   };
   const updateObjX = (e: any) => {
-    setObjX(parseInt(e.target.value, 10) || 50);
+    const xValue = parseInt(e.target.value, 10) || 50;
+    setObjX(xValue);
+    if (currDesk !== undefined) {
+      currDesk.setXValue(xValue);
+    } else if (currItem !== undefined) {
+      currItem.setXValue(xValue);
+    }
   };
   const updateObjY = (e: any) => {
-    setObjY(parseInt(e.target.value, 10) || 50);
+    const yValue = parseInt(e.target.value, 10) || 50;
+    setObjY(yValue);
+    if (currDesk !== undefined) {
+      currDesk.setYValue(yValue);
+    } else if (currItem !== undefined) {
+      currItem.setYValue(yValue);
+    }
   };
 
   const addItem = () => {
-    console.log("id for adding :" , uuidv4());
     setItems([...items, new Item(uuidv4(),
       objShapeToAdd,
       objLabel,
@@ -203,7 +238,6 @@ export default function SeatingChart() {
 
   const addDesk = () => {
     const accomidationElement = document.getElementById('specialAccommodations');
-    console.log("id for adding :" , uuidv4());
     let accomidations: string[];
     if (accomidationElement) {
       accomidations = Array.from(accomidationElement.querySelectorAll('[aria-selected="true"]')).map((option) => option.getAttribute('data-value')).filter((value): value is string => value !== null);
@@ -229,7 +263,6 @@ export default function SeatingChart() {
     }
   }
   const setItemData = (item: Item) => {
-    // console.log("setting data");
     // alert("calling item data");
     setObjToAdd("placeholder");
     setObjShapeToAdd(item.getShape());
@@ -242,7 +275,6 @@ export default function SeatingChart() {
   }
 
   const setDeskData = (desk: Desk) => {
-    // console.log("setting data");
     // alert("calling desk data");
     setObjToAdd("desk");
     setObjShapeToAdd(desk.getShape());
@@ -255,6 +287,8 @@ export default function SeatingChart() {
   }
 
   const setStudents = () => {
+    setObjX(50);
+    setObjY(50);
     let studentArr = studentsToAdd.split('\n');
     if (studentArr.length > desks.length) {
       let desksToAdd: Desk[] = [];
@@ -269,12 +303,11 @@ export default function SeatingChart() {
     }
 
 
+
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
-        console.log("mapping...");
         let deskCopy = new Desk(desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations());
         if (i < studentArr.length) {
-          console.log("just set : " + studentArr[i]);
           deskCopy.setName(studentArr[i]);
         } else {
           deskCopy.setName("");
@@ -282,6 +315,25 @@ export default function SeatingChart() {
         return deskCopy;
       })
     );
+
+  }
+
+  const randomizeStudents = () => {
+    let randomizedArr: any[] = [];
+    for (let i = 0; i < desks.length; i++) {
+      randomizedArr[i] = { accomidations: desks[i].getAccomidations(), name: desks[i].getName() };
+    }
+
+    randomizedArr.sort(function () { return 0.5 - Math.random() });
+    setDesks((prevDesks: Desk[]) =>
+      prevDesks.map((desk, i) => {
+        let deskCopy = new Desk(desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations());
+        deskCopy.setAccomidations(randomizedArr[i].accomidations);
+        deskCopy.setName(randomizedArr[i].name);
+        return deskCopy;
+      })
+    );
+
 
   }
 
@@ -295,15 +347,15 @@ export default function SeatingChart() {
   }
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const handleChange = (
-    event: React.SyntheticEvent | null,
-    newValue: string | null
-  ) => {
-    if (newValue != null) {
-      setObjToAdd(newValue);
+  // const handleChange = (
+  //   event: React.SyntheticEvent | null,
+  //   newValue: string | null
+  // ) => {
+  //   if (newValue != null) {
+  //     setObjToAdd(newValue);
 
-    }
-  };
+  //   }
+  // };
 
   return (
     <Box
@@ -312,7 +364,7 @@ export default function SeatingChart() {
         height: "100%",
         justifyContent: "right",
         display: "flex",
-        backgroundColor: "pink",
+        // backgroundColor: "pink",
         margin: "0px",
         padding: "0px",
       }}
@@ -321,14 +373,15 @@ export default function SeatingChart() {
         sx={{
           flexGrow: 1,
           display: "flex",
-          backgroundColor: "pink",
+          // backgroundColor: "pink",
           justifyContent: "center",
           alignItems: "center",
         }}
       >
         <Box
           sx={{
-            backgroundColor: "red",
+            // backgroundColor: "rgb(235,235,235)",
+            border: '2px solid black',
             width: itemWidth,
             height: itemHeight,
             maxWidth: "100%",
@@ -340,13 +393,20 @@ export default function SeatingChart() {
         sx={{
           width: "400px",
           height: "100%",
-          backgroundColor: "yellow",
+          // borderColor: "black",
+          // borderWidth:"thick",
+          backgroundColor: "rgb(235,235,235)",
+          // borderLeft: '2px solid black',
           justifyContent: "center",
           textAlign: "center",
+          paddingTop: "10px"
         }}
       >
-        <Button variant="outlined" color="neutral" onClick={() => setOpen(true)}>
+        <Button variant="solid" color="neutral" onClick={() => setOpen(true)}>
           Import Students
+        </Button>
+        <Button variant="solid" onClick={randomizeStudents} sx={{ width: "175px", marginRight: "15px", marginLeft: "10px" }}>
+          Randomize Students
         </Button>
         <Modal
           aria-labelledby="modal-title"
@@ -433,7 +493,11 @@ export default function SeatingChart() {
             aria-labelledby="example-payment-channel-label"
             overlay
             name="example-payment-channel"
-            defaultValue="placeholder"
+            // defaultValue="placeholder"
+            value={objToAdd}
+            // onChange={(e: any) => { setObjToAdd(e.target.value) }}
+            onClick={(e: any) => { setObjToAdd(e.target.value) }}
+            id="typeRadioGroup"
             sx={{ alignItems: 'center', justifyContent: "center" }}
           >
             <List
@@ -445,7 +509,7 @@ export default function SeatingChart() {
               {['placeholder', 'desk'].map((value, index) => (
                 <React.Fragment key={value}>
                   <ListItem>
-                    <Radio id={value} value={value} label={value} onClick={() => { setObjToAdd(value) }} />
+                    <Radio id={value} value={value} label={value} />
                   </ListItem>
                 </React.Fragment>
               ))}
@@ -453,7 +517,7 @@ export default function SeatingChart() {
           </RadioGroup>
         </Box>
         <Box
-          sx={{ backgroundColor: "green" }}>
+        >
           <Box
             sx={{
               margin: "5px",
@@ -467,7 +531,10 @@ export default function SeatingChart() {
               aria-labelledby="example-payment-channel-label"
               overlay
               name="example-payment-channel"
-              defaultValue="placeholder"
+              // defaultValue="rectangle"
+              value={objShapeToAdd}
+              onClick={(e: any) => { setObjShapeToAdd(e.target.value) }}
+              onChange={updateObjShape}
               sx={{ alignItems: 'center', justifyContent: "center" }}
             >
               <List
@@ -479,7 +546,7 @@ export default function SeatingChart() {
                 {['circle', 'rectangle'].map((value, index) => (
                   <React.Fragment key={value}>
                     <ListItem>
-                      <Radio id={value} value={value} label={value} onClick={() => { setObjShapeToAdd(value) }} />
+                      <Radio id={value} value={value} label={value} />
                     </ListItem>
                   </React.Fragment>
                 ))}
@@ -644,19 +711,25 @@ export default function SeatingChart() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              border: "solid 1px #ddd",
-              background: "#f0f0f0", borderRadius: element.shape === 'rectangle' ? '0px' : '200px'
+              // border: "solid 1px #ddd",
+              border: '1px solid black',
+              // background: "#f0f0f0",
+              borderRadius: element.shape === 'rectangle' ? '0px' : '200px'
             }}
             size={{ width: element.widthValue, height: element.heightValue }}
             position={{ x: element.xValue, y: element.yValue }}
-            onClick={(e:any) => { console.log("Mouse down event triggered");
-            // e.preventDefault();
-            // e.stopPropagation();
+            onClick={(e: any) => {
+              // e.preventDefault();
+              // e.stopPropagation();
+              setCurrDesk(element);
+              setCurrItem(undefined);
+              setObjToAdd("desk");
               setDeskData(element);
+              setObjShapeToAdd(element.getShape());
+
               // alert("hello");
-              // console.log("clicked");
             }}
-  
+
 
             onDragStop={(e, d) => {
               setDeskData(element);
@@ -667,6 +740,14 @@ export default function SeatingChart() {
                     : desk
                 )
               );
+              setCurrDesk(element);
+              setCurrItem(undefined);
+              setObjToAdd("desk");
+              setObjShapeToAdd(element.getShape());
+              setObjX(d.x);
+              setObjY(d.y);
+              setObjWidth(element.getWidthValue());
+              setObjHeight(element.getHeightValue());
             }}
             onResizeStop={(e, direction, ref, delta, position) => {
               setDeskData(element);
@@ -677,6 +758,14 @@ export default function SeatingChart() {
                     : desk
                 )
               );
+              setCurrDesk(element);
+              setCurrItem(undefined);
+              setObjToAdd("desk");
+              setObjShapeToAdd(element.getShape());
+              setObjX(position.x);
+              setObjY(position.y);
+              setObjWidth(parseInt(ref.style.width, 10));
+              setObjHeight(parseInt(ref.style.height, 10));
             }}
           >
             <Typography sx={{ fontSize: "12px", color: "black" }}>{element.name}</Typography>
@@ -685,54 +774,79 @@ export default function SeatingChart() {
       })}
       {/* .slice().reverse() */}
       {items.map((element: Item, indexCurr: number) => {
-        console.log("rendering : ", element.id);
         // setItemData(element);
         return (
           // <Box sx={{ margin: "0px", padding: "0px" }} key={`box-${element.id}`}
-            <Rnd
+          <Rnd
             key={element.id}
-         
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "solid 1px #ddd",
-                background: "#f0f0f0", borderRadius: element.shape === 'rectangle' ? '0px' : '200px'
-              }}
-              bounds="parent"
-              size={{ width: element.widthValue, height: element.heightValue }}
+
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              // border: "solid 1px #ddd",
+              border: '1px solid black',
+              background: "#d9d9d9",
+              borderRadius: element.shape === 'rectangle' ? '0px' : '200px'
+            }}
+            bounds="parent"
+            size={{ width: element.widthValue, height: element.heightValue }}
             position={{ x: element.xValue, y: element.yValue }}
-            onClick={(e:any) => { console.log("Mouse down event triggered");
-            // e.preventDefault();
-            // e.stopPropagation();
+            onClick={(e: any) => {
+              // e.preventDefault();
+              // e.stopPropagation();
+              setCurrDesk(undefined);
+              setCurrItem(element);
+              setObjToAdd("placeholder");
+
               setItemData(element);
+              setObjShapeToAdd(element.getShape());
               // alert("hello");
-            console.log("clicked");}}
+            }}
 
             onDragStop={(e, d) => {
               setItemData(element);
-                setItems((prevItems: Item[]) =>
-                  prevItems.map((item: Item) =>
-                    item.id === element.id
-                      ? new Item(item.getId(), item.getShape(), item.getName(), d.x, d.y, item.getWidthValue(), item.getHeightValue())
-                      : item
-                  )
-                );
-              }}
+              setItems((prevItems: Item[]) =>
+                prevItems.map((item: Item) =>
+                  item.id === element.id
+                    ? new Item(item.getId(), item.getShape(), item.getName(), d.x, d.y, item.getWidthValue(), item.getHeightValue())
+                    : item
+                )
+              );
+              setCurrDesk(undefined);
+              setCurrItem(element);
+              setObjToAdd("placeholder");
+              setObjShapeToAdd(element.getShape());
+              setObjX(d.x);
+              setObjY(d.y);
+              setObjWidth(element.getWidthValue());
+              setObjHeight(element.getHeightValue());
+
+            }
+            }
             onResizeStop={(e, direction, ref, delta, position) => {
               setItemData(element);
-                setItems((prevItems: Item[]) =>
-                  prevItems.map((item: Item) =>
-                    item.id === element.id
-                      ? new Item(item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10))
-                      : item
-                  )
-                );
-              }}
-              
-            >
-              <Typography sx={{ fontSize: "12px", color: "black" }}>{element.name}</Typography>
-            </Rnd>
+              setItems((prevItems: Item[]) =>
+                prevItems.map((item: Item) =>
+                  item.id === element.id
+                    ? new Item(item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10))
+                    : item
+                )
+              );
+              setCurrDesk(undefined);
+              setCurrItem(element);
+              setObjToAdd("placeholder");
+              setObjShapeToAdd(element.getShape());
+              setObjX(position.x);
+              setObjY(position.y);
+              setObjWidth(parseInt(ref.style.width, 10));
+              setObjHeight(parseInt(ref.style.height, 10));
+
+            }}
+
+          >
+            <Typography sx={{ fontSize: "12px", color: "black" }}>{element.name}</Typography>
+          </Rnd>
           // </Box>
         );
       })}
