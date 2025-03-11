@@ -14,6 +14,7 @@ import ListItem from '@mui/joy/ListItem';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Textarea from '@mui/joy/Textarea';
+import { useEffect} from 'react';
 
 import { Box, Chip } from '@mui/joy';
 import Modal from '@mui/joy/Modal';
@@ -40,6 +41,7 @@ const marks = [
 ];
 
 class Item {
+  active: boolean;
   id: string;
   shape: string;
   name: string;
@@ -48,13 +50,16 @@ class Item {
   widthValue: number;
   heightValue: number;
 
-  constructor(id: string,
+  constructor(
+    active: boolean,
+    id: string,
     shape: string,
     name: string,
     xValue: number,
     yValue: number,
     widthValue: number,
     heightValue: number) {
+    this.active = active;
     this.id = id;
     this.shape = shape;
     this.name = name;
@@ -69,6 +74,9 @@ class Item {
   }
   getId() {
     return this.id;
+  }
+  getActive() {
+    return this.active;
   }
   getName() {
     return this.name;
@@ -90,9 +98,14 @@ class Item {
     this.shape = newShape;
   }
 
-  setId() {
-    return this.id;
+  setActive(active: boolean) {
+    this.active = active;
+    console.log("setting : " + active);
   }
+
+  // setId() {
+  //   return this.id;
+  // }
   setName(newName: string) {
     this.name = newName;
   }
@@ -112,7 +125,7 @@ class Item {
 
 class Desk extends Item {
   accomidations: string[];
-  constructor(id: string,
+  constructor(active: boolean, id: string,
     shape: string,
     name: string,
     xValue: number,
@@ -120,7 +133,7 @@ class Desk extends Item {
     widthValue: number,
     heightValue: number,
     accomidations: string[]) {
-    super(id, shape, name, xValue, yValue, widthValue, heightValue);
+    super(active, id, shape, name, xValue, yValue, widthValue, heightValue);
     this.accomidations = accomidations;
   }
 
@@ -158,7 +171,41 @@ export default function SeatingChart() {
   const [currDesk, setCurrDesk] = useState<Desk>();
   const [open, setOpen] = React.useState<boolean>(false);
   const [studentsToAdd, setStudentsToAdd] = useState('');
+  // const seatingChartBodyRef = useRef(null);
 
+
+
+  useEffect(() => {
+    console.log("running");
+    console.log(objAccomidations);
+    // if (seatingChartBodyRef.current) {
+    function handleClick() {
+      setItems((prevItems: Item[]) =>
+      prevItems.map((item: Item) => {
+        return new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue());
+      }));
+    setDesks((prevDesks: Desk[]) =>
+      prevDesks.map((desk, i) => {
+       return  new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations()); 
+      }));
+      console.log("setting everything to false!");
+    //reset values
+      setObjWidth(50);
+      setObjHeight(50);
+      setObjX(50);
+      setObjY(50);
+      setObjLabel("Label");
+      setObjAccomidations([]);
+    }
+    if (window.document.getElementById('tableArea') != null) {
+        
+        window.document.getElementById('tableArea')!.addEventListener('click', handleClick);
+      }
+      return () => window.document.getElementById('tableArea')!.removeEventListener('click', handleClick);
+
+  // }
+}, [objAccomidations]);
+  
 
   const updateHeight = (e: any) => {
     setHeight(e.target.value);
@@ -193,12 +240,12 @@ export default function SeatingChart() {
     }
   };
 
-  const updateObjAccomidations = (e: any) => {
-    setObjAccomidations(e.target.value);
-    if (currDesk !== undefined) {
-      currDesk.setAccomidations(e.target.value);
-    }
-  };
+  // const updateObjAccomidations = (e: any) => {
+  //   setObjAccomidations(e.target.value);
+  //   if (currDesk !== undefined) {
+  //     currDesk.setAccomidations(e.target.value);
+  //   }
+  // };
   const updateObjLabel = (e: any) => {
     setObjLabel(e.target.value);
     if (currDesk !== undefined) {
@@ -227,7 +274,7 @@ export default function SeatingChart() {
   };
 
   const addItem = () => {
-    setItems([...items, new Item(uuidv4(),
+    setItems([...items, new Item(false, uuidv4(),
       objShapeToAdd,
       objLabel,
       objX,
@@ -246,7 +293,7 @@ export default function SeatingChart() {
     }
 
 
-    setDesks((prevDesks: Desk[]) => [...prevDesks, new Desk(uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, objAccomidations)]);
+    setDesks((prevDesks: Desk[]) => [...prevDesks, new Desk(false, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, accomidations)]);
   };
 
   const clearItems = () => {
@@ -296,7 +343,7 @@ export default function SeatingChart() {
 
 
       for (let i = 0; i < numberOfDesksToAdd; i++) {
-        desksToAdd.push(new Desk(uuidv4(), objShapeToAdd, "student", objX, objY, objWidth, objHeight, []));
+        desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", objX, objY, objWidth, objHeight, []));
 
       }
       setDesks((prevDesks: Desk[]) => [...prevDesks, ...desksToAdd]);//make sure there are no concurrent timing issues
@@ -306,7 +353,7 @@ export default function SeatingChart() {
 
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
-        let deskCopy = new Desk(desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations());
+        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations());
         if (i < studentArr.length) {
           deskCopy.setName(studentArr[i]);
         } else {
@@ -327,7 +374,7 @@ export default function SeatingChart() {
     randomizedArr.sort(function () { return 0.5 - Math.random() });
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
-        let deskCopy = new Desk(desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations());
+        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations());
         deskCopy.setAccomidations(randomizedArr[i].accomidations);
         deskCopy.setName(randomizedArr[i].name);
         return deskCopy;
@@ -439,6 +486,7 @@ export default function SeatingChart() {
                 minRows={3}
                 maxRows={6}
                 variant="outlined"
+                value={studentsToAdd}
                 onChange={(event) => {
                   setStudentsToAdd(event.target.value);
                 }}
@@ -702,6 +750,7 @@ export default function SeatingChart() {
         </Box>
       </Box>
       {/* .slice().reverse() */}
+      <Box id="tableArea">
       {desks.map((element: Desk, indexCurr: number) => {
         return (
           <Rnd
@@ -712,21 +761,28 @@ export default function SeatingChart() {
               alignItems: "center",
               justifyContent: "center",
               // border: "solid 1px #ddd",
-              border: '1px solid black',
-              // background: "#f0f0f0",
+              border: element.getActive() === true ? '1px solid blue' : '1px solid black',
+              background: "#ffffff",
               borderRadius: element.shape === 'rectangle' ? '0px' : '200px'
             }}
             size={{ width: element.widthValue, height: element.heightValue }}
             position={{ x: element.xValue, y: element.yValue }}
             onClick={(e: any) => {
               // e.preventDefault();
-              // e.stopPropagation();
+              e.stopPropagation(); //stop the overall onClick from running so it doens't override this
               setCurrDesk(element);
               setCurrItem(undefined);
               setObjToAdd("desk");
               setDeskData(element);
               setObjShapeToAdd(element.getShape());
-
+              console.log("just got clicked");
+              setDesks((prevDesks: Desk[]) =>
+              prevDesks.map((desk: Desk) =>
+                desk.id === element.id
+                  ? new Desk(true, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations())
+                  :new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations())
+              )
+            );
               // alert("hello");
             }}
 
@@ -736,7 +792,7 @@ export default function SeatingChart() {
               setDesks((prevDesks: Desk[]) =>
                 prevDesks.map((desk: Desk) =>
                   desk.id === element.id
-                    ? new Desk(desk.getId(), desk.getShape(), desk.getName(), d.x, d.y, desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations())
+                    ? new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), d.x, d.y, desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations())
                     : desk
                 )
               );
@@ -754,7 +810,7 @@ export default function SeatingChart() {
               setDesks((prevDesks: Desk[]) =>
                 prevDesks.map((desk: Desk) =>
                   desk.id === element.id
-                    ? new Desk(desk.getId(), desk.getShape(), desk.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), desk.getAccomidations())
+                    ? new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), desk.getAccomidations())
                     : desk
                 )
               );
@@ -785,7 +841,7 @@ export default function SeatingChart() {
               alignItems: "center",
               justifyContent: "center",
               // border: "solid 1px #ddd",
-              border: '1px solid black',
+              border: element.getActive() === true ? '1px solid blue' : '1px solid black',
               background: "#d9d9d9",
               borderRadius: element.shape === 'rectangle' ? '0px' : '200px'
             }}
@@ -795,12 +851,21 @@ export default function SeatingChart() {
             onClick={(e: any) => {
               // e.preventDefault();
               // e.stopPropagation();
+              e.stopPropagation(); //don't have the body onClick function run
               setCurrDesk(undefined);
               setCurrItem(element);
               setObjToAdd("placeholder");
 
               setItemData(element);
               setObjShapeToAdd(element.getShape());
+              element.setActive(true);
+              setItems((prevItems: Item[]) =>
+                prevItems.map((item: Item) =>
+                  item.id === element.id
+                    ? new Item(true, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue())
+                    : new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue())
+                )
+              );
               // alert("hello");
             }}
 
@@ -809,7 +874,7 @@ export default function SeatingChart() {
               setItems((prevItems: Item[]) =>
                 prevItems.map((item: Item) =>
                   item.id === element.id
-                    ? new Item(item.getId(), item.getShape(), item.getName(), d.x, d.y, item.getWidthValue(), item.getHeightValue())
+                    ? new Item(item.getActive(), item.getId(), item.getShape(), item.getName(), d.x, d.y, item.getWidthValue(), item.getHeightValue())
                     : item
                 )
               );
@@ -829,7 +894,7 @@ export default function SeatingChart() {
               setItems((prevItems: Item[]) =>
                 prevItems.map((item: Item) =>
                   item.id === element.id
-                    ? new Item(item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10))
+                    ? new Item(item.getActive(), item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10))
                     : item
                 )
               );
@@ -850,6 +915,7 @@ export default function SeatingChart() {
           // </Box>
         );
       })}
+        </Box>
     </Box>
   );
 }
