@@ -11,6 +11,7 @@ import ListItemButton from '@mui/joy/ListItemButton';
 // import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import Person from '@mui/icons-material/Person';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import BackupTableIcon from '@mui/icons-material/BackupTable';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 // import IconButton from '@mui/joy/IconButton';
 import Menu from '@mui/joy/Menu';
@@ -18,8 +19,10 @@ import Dropdown from '@mui/joy/Dropdown';
 import MenuButton from '@mui/joy/MenuButton';
 import MenuItem from '@mui/joy/MenuItem';
 import MoreVert from '@mui/icons-material/MoreVert';
+import { useNavigate } from 'react-router-dom';
 
 export default function NavBar() {
+  const navigate = useNavigate();
   return (
     <Box sx={{ minHeight: "20px" }}>
       <List
@@ -36,7 +39,8 @@ export default function NavBar() {
           <ListItemButton
             role="menuitem"
             component="a"
-            href="#navigation-menu"
+            // href="#navigation-menu"
+            onClick={() => { navigate('/') }}
           >
            <Typography>Table Map</Typography>
           </ListItemButton>
@@ -52,6 +56,7 @@ export default function NavBar() {
       <Menu>
         <MenuItem><Person /> Profile</MenuItem>
         <MenuItem><InfoOutlinedIcon /> Instructions</MenuItem>
+        <MenuItem   onClick={() => { navigate('/seating-chart') }}><BackupTableIcon />Charts</MenuItem>
         <MenuItem><ExitToAppOutlinedIcon /> Logout</MenuItem>
       </Menu>
     </Dropdown>

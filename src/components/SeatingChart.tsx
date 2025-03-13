@@ -8,6 +8,7 @@ import Button from "@mui/joy/Button";
 import Select from "@mui/joy/Select";
 import Input from "@mui/joy/Input";
 import Stack from "@mui/joy/Stack";
+import Navbar from './Navbar';
 import Option from '@mui/joy/Option';
 import List from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
@@ -405,6 +406,9 @@ export default function SeatingChart() {
   // };
 
   return (
+    <Box sx={{width: "100%",
+    height: "100%"}}>
+      <Navbar/>
     <Box
       sx={{
         width: "100%",
@@ -916,6 +920,7 @@ export default function SeatingChart() {
         );
       })}
         </Box>
-    </Box>
+      </Box>
+      </Box>
   );
 }
