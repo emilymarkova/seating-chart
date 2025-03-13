@@ -4,7 +4,7 @@ import './App.css';
 import SeatingChart from './components/SeatingChart';
 import SignUp from './components/SignUp';
 import Home from './components/Home';
-import LogIn from './components/LogIn';
+import LogIn from './components/LogIn.tsx';
 import Box from '@mui/joy/Box';
 import { AuthProvider } from "./contexts/AuthContext";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
