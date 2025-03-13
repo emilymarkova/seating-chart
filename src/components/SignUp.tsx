@@ -4,40 +4,48 @@ import { useNavigate } from 'react-router-dom';
 import Sheet from '@mui/joy/Sheet';
 import CssBaseline from '@mui/joy/CssBaseline';
 import Navbar from './Navbar';
-import {Link} from 'react-router-dom';
 import Typography from '@mui/joy/Typography';
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {Link} from 'react-router-dom';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import Button from '@mui/joy/Button';
 import Box from '@mui/joy/Box';
+import { useAuth } from "../contexts/AuthContext";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 
-export default function LogIn() {
+export default function SignUp() {
 	const emailRef = useRef<HTMLInputElement>(null);
 	const passwordRef = useRef<HTMLInputElement>(null);
+	const passwordConfirmationRef = useRef<HTMLInputElement>(null);
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
-	const navigate = useNavigate();
+  const { signup } = useAuth()
+  const navigate = useNavigate();
 
-	async function handleLogIn(e: any) {
+	async function handleSubmit(e: any) {
 		e.preventDefault(); // prevent from refereshing
-		if (!passwordRef.current || !emailRef.current) {
+		if (!passwordRef.current || !passwordConfirmationRef.current || !emailRef.current) {
 			return;
 		}
-		const auth = getAuth();
-		try {
+		if(passwordRef.current.value !== passwordConfirmationRef.current.value){
+			return setError("Passwords do not match");//end function
+		}
+    try {
+      //may want to add verification at one point!
 			setError("");
 			setLoading(true);
-			await signInWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value);
-			navigate("/");
-
-		} catch (error: any) {
-			setError("Failed to log in");
+      await signup(emailRef.current.value, passwordRef.current.value);
+      const auth = getAuth();
+      await signInWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value);
+      navigate("/");
+      alert("You have successfully signed up and created an account! Make sure to save your login credentials somewhere so you don't forget them!");
+		} catch {
+			setError("Failed to create an account");
 		}
+		setLoading(false);
 	}
-
   return (
     <Box>
       <Navbar />
@@ -102,12 +110,26 @@ export default function LogIn() {
             }}
           />
 				</FormControl>
-        <Button sx={{ mt: 1 /* margin top */ }} onClick={handleLogIn} disabled={loading}>Log In</Button>
+				<FormControl>
+          <FormLabel>Password Confirmation</FormLabel>
+          <Input
+            // html input attribute
+            name="passwordConfirmation"
+            type="password"
+						placeholder="password confirmation"
+						slotProps={{
+              input: {
+                ref: passwordConfirmationRef
+              }
+            }}
+          />
+        </FormControl>
+        <Button sx={{ mt: 1 /* margin top */ }} onClick={handleSubmit} disabled={loading}>Sign Up</Button>
         <Typography
-          endDecorator={<Link to='/signup'>Sign Up</Link>}
+          endDecorator={<Link to='/login'>Log in</Link>}
           sx={{ fontSize: 'sm', alignSelf: 'center' }}
         >
-          Need an account?
+          Already have an account?
         </Typography>
       </Sheet>
       </Box>
