@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, ReactNode } from 'react';
 import { auth } from '../firebase';
 import { User } from "firebase/auth"; // Import Firebase User type
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 
 

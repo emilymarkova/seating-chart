@@ -4,7 +4,6 @@ import './App.css';
 import SeatingChart from './components/SeatingChart';
 import SignUp from './components/SignUp';
 import Home from './components/Home';
-import Navbar from './components/Navbar';
 import LogIn from './components/LogIn';
 import Box from '@mui/joy/Box';
 import { AuthProvider } from "./contexts/AuthContext";

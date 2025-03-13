@@ -1,20 +1,8 @@
-import React, { useRef, useState } from 'react';
-import Alert from '@mui/joy/Alert';
-
-import { useColorScheme } from '@mui/joy/styles';
-import Sheet from '@mui/joy/Sheet';
-import CssBaseline from '@mui/joy/CssBaseline';
+import React from 'react';
 import Typography from '@mui/joy/Typography';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
 import Navbar from './Navbar';
-import Input from '@mui/joy/Input';
 import Button from '@mui/joy/Button';
-import Link from '@mui/joy/Link';
-import Select from '@mui/joy/Select';
 import Box from '@mui/joy/Box';
-import Option from '@mui/joy/Option';
-import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from 'react-router-dom';
 
 
