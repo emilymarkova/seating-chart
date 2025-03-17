@@ -6,6 +6,8 @@ import Box from '@mui/joy/Box';
 import List from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
 import ListItemButton from '@mui/joy/ListItemButton';
+import { getAuth, signOut } from "firebase/auth";
+
 // import ListItemDecorator from '@mui/joy/ListItemDecorator';
 // import HomeRounded from '@mui/icons-material/HomeRounded';
 // import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
@@ -23,6 +25,15 @@ import { useNavigate } from 'react-router-dom';
 
 export default function NavBar() {
   const navigate = useNavigate();
+  const logOut = function () {
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      // Sign-out successful.
+    }).catch((error) => {
+      // An error happened.
+    });
+    navigate('/');
+  }
   return (
     <Box sx={{ minHeight: "20px" }}>
       <List
@@ -45,22 +56,24 @@ export default function NavBar() {
            <Typography>Table Map</Typography>
           </ListItemButton>
         </ListItem>
-        <ListItem role="none" sx={{ marginInlineStart: 'auto' }} >
-        <Dropdown>
-      <MenuButton
-        slots={{ root: Person }}
-        slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
-      >
-        <MoreVert />
-      </MenuButton>
-      <Menu>
-        <MenuItem><Person /> Profile</MenuItem>
-        <MenuItem><InfoOutlinedIcon /> Instructions</MenuItem>
-        <MenuItem   onClick={() => { navigate('/seating-chart') }}><BackupTableIcon />Charts</MenuItem>
-        <MenuItem><ExitToAppOutlinedIcon /> Logout</MenuItem>
-      </Menu>
-    </Dropdown>
-        </ListItem>
+        {getAuth().currentUser &&
+          <ListItem role="none" sx={{ marginInlineStart: 'auto' }} >
+            <Dropdown>
+              <MenuButton
+                slots={{ root: Person }}
+                slotProps={{ root: { variant: 'outlined', color: 'neutral' } }}
+              >
+                <MoreVert />
+              </MenuButton>
+              <Menu>
+                <MenuItem><Person /> Profile</MenuItem>
+                <MenuItem><InfoOutlinedIcon /> Instructions</MenuItem>
+                <MenuItem onClick={() => { navigate('/seating-chart') }}><BackupTableIcon />Charts</MenuItem>
+                <MenuItem onClick={logOut}><ExitToAppOutlinedIcon /> Logout</MenuItem>
+              </Menu>
+            </Dropdown>
+          </ListItem>
+        }
       </List>
     </Box>
   );

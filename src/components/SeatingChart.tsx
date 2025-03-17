@@ -198,11 +198,15 @@ export default function SeatingChart() {
       setObjLabel("Label");
       setObjAccomidations([]);
     }
-    if (window.document.getElementById('tableArea') != null) {
+    if (window.document.getElementById('tableArea')) {
         
         window.document.getElementById('tableArea')!.addEventListener('click', handleClick);
       }
-      return () => window.document.getElementById('tableArea')!.removeEventListener('click', handleClick);
+    return () => {
+      if (window.document.getElementById('tableArea') && handleClick) {
+        window.document.getElementById('tableArea')!.removeEventListener('click', handleClick);
+      }
+    };
 
   // }
 }, [objAccomidations]);
