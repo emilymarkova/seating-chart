@@ -2,6 +2,7 @@
 // import logo from './logo.svg';
 import './App.css';
 import SeatingChart from './components/SeatingChart';
+import Profile from './components/Profile';
 import SignUp from './components/SignUp';
 import Home from './components/Home';
 import LogIn from './components/LogIn';
@@ -18,6 +19,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/seating-chart" element={<SeatingChart />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/signup" element={<SignUp />}/>
             <Route path="/login" element={<LogIn />}/>
             <Route path="/" element={<Home />}/>

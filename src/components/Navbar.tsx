@@ -66,7 +66,7 @@ export default function NavBar() {
                 <MoreVert />
               </MenuButton>
               <Menu>
-                <MenuItem><Person /> Profile</MenuItem>
+                <MenuItem onClick={() => { navigate('/profile') }}><Person /> Profile</MenuItem>
                 <MenuItem><InfoOutlinedIcon /> Instructions</MenuItem>
                 <MenuItem onClick={() => { navigate('/seating-chart') }}><BackupTableIcon />Charts</MenuItem>
                 <MenuItem onClick={logOut}><ExitToAppOutlinedIcon /> Logout</MenuItem>
