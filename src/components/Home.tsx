@@ -29,7 +29,7 @@ onAuthStateChanged(auth, (user) => {
 			<Box>
 			<Typography sx={{fontSize:"30px" }}>
   Welcome to the {" "}
-  <Typography variant="outlined" color="success">Seating Chart Project</Typography>. <br/>I hope you enjoy your experience!
+  <Typography variant="outlined" color="success">Seating Chart Project</Typography>. 
 					</Typography>
 					{!signedIn &&
 				<Box sx={{display:"flex", width:"400px", justifyContent:"space-between", alignItems:"center"}}>

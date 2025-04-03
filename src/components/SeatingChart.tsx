@@ -6,20 +6,20 @@ import { v4 as uuidv4 } from 'uuid';
 import IconButton from '@mui/material/IconButton';
 import Slider from "@mui/joy/Slider";
 import Button from "@mui/joy/Button";
-import Select from "@mui/joy/Select";
 import Switch from '@mui/material/Switch';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import Input from "@mui/joy/Input";
 import Stack from "@mui/joy/Stack";
 import Navbar from './Navbar';
-import Option from '@mui/joy/Option';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import List from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Textarea from '@mui/joy/Textarea';
 import { useEffect } from 'react';
-import { Box, Chip } from '@mui/joy';
+import { Box } from '@mui/joy';
 import Modal from '@mui/joy/Modal';
 import ModalClose from '@mui/joy/ModalClose';
 import Sheet from '@mui/joy/Sheet';
@@ -157,9 +157,11 @@ function valueText(value: number) {
 
 export default function SeatingChart() {
   const [swapModeOn, setSwapModeOn] = useState(false);
+  const [numbersModeOn, setNumbersModeOn] = useState(false);
   const [deskToSwap, setDeskToSwap] = useState<Desk|null>(null);
   const [itemWidth, setWidth] = useState(100);
   const [itemHeight, setHeight] = useState(100);
+  const [fontSize, setFontSize] = useState("12");
   const initialItems: Item[] = [];
   const [items, setItems] = useState(initialItems);
   const initialDesks: Desk[] = [];
@@ -175,6 +177,9 @@ export default function SeatingChart() {
   const [currItem, setCurrItem] = useState<Item>();
   const [currDesk, setCurrDesk] = useState<Desk>();
   const [open, setOpen] = React.useState<boolean>(false);
+  const [openNotes, setOpenNotes] = React.useState<boolean>(false);
+  const [openSetUp, setOpenSetUp] = React.useState<boolean>(false);
+  const [notes, setNotes] = React.useState("");
   const [studentsToAdd, setStudentsToAdd] = useState('');
   // const seatingChartBodyRef = useRef(null);
 
@@ -496,14 +501,19 @@ export default function SeatingChart() {
   const setStudents = () => {
     setObjX(50);
     setObjY(50);
-    let studentArr = studentsToAdd.split('\n');
+    let studentArr = studentsToAdd.split("\n").map(line => line.trim()).filter(line => line !== "");
     if (studentArr.length > desks.length) {
       let desksToAdd: Desk[] = [];
       let numberOfDesksToAdd = studentArr.length - desks.length;;
 
 
       for (let i = 0; i < numberOfDesksToAdd; i++) {
-        desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", objX, objY, objWidth, objHeight, []));
+        if (objToAdd !== "placeholder") {
+          desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, objWidth, objHeight, []));
+        } else {
+          desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, 50, 50, []));
+        }
+        
 
       }
       setDesks((prevDesks: Desk[]) => [...prevDesks, ...desksToAdd]);//make sure there are no concurrent timing issues
@@ -523,6 +533,20 @@ export default function SeatingChart() {
       })
     );
 
+  }
+
+  const copyNumberedList = () => {
+    setStudents();
+    let students = "";
+    for (let i = 0; i < desks.length; i++){
+      let desk = desks[i];
+      if (i !== desks.length - 1) {
+        students += i+1 + ". " + desk.getName() + "\n";
+      } else {
+        students += i+1 + ". " + desk.getName();
+      }
+    }
+    navigator.clipboard.writeText(students);
   }
 
   const randomizeStudents = () => {
@@ -608,6 +632,8 @@ export default function SeatingChart() {
               height: itemHeight,
               maxWidth: "100%",
               maxHeight: "100%",
+              display: "block",
+              overflow: "visible",
               // overflow: "visible" // Allow items to overflow if needed
             }}>
               {desks.map((element: Desk, indexCurr: number) => {
@@ -617,18 +643,26 @@ export default function SeatingChart() {
                     bounds="parent"
                     style={{
                       display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      alignItems: "left",
+                      // justifyContent: "center",
                       // border: "solid 1px #ddd",
                       border: element.getActive() === true ? '1px solid blue' : '1px solid black',
+                      width: `${element.widthValue}px`,
+                      height: `${element.heightValue}px`,
                       background: "#ffffff",
+                      textAlign: "left",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "clip",
+                      paddingTop: "5px",
                       borderRadius: element.shape === 'rectangle' ? '0px' : '200px',
                       zIndex: 1000,
-                      position:"relative",
+                      position:"absolute",
                     }}
                     size={{ width: element.widthValue, height: element.heightValue }}
                     position={{ x: element.xValue, y: element.yValue }}
                     onClick={(e: any) => {
+                      e.preventDefault();
                       // e.preventDefault();
                       e.stopPropagation(); //stop the overall onClick from running so it doens't override this
                       setCurrDesk(element);
@@ -644,7 +678,6 @@ export default function SeatingChart() {
                             : new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations())
                         )
                       );
-                      // alert("hello");
                     }}
 
 
@@ -667,13 +700,17 @@ export default function SeatingChart() {
                       setObjHeight(element.getHeightValue());
                     }}
                     onResizeStop={(e, direction, ref, delta, position) => {
+                      
                       setDeskData(element);
                       setDesks((prevDesks: Desk[]) =>
-                        prevDesks.map((desk: Desk) =>
-                          desk.id === element.id
-                            ? new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), desk.getAccomidations())
-                            : desk
-                        )
+                        prevDesks.map((desk: Desk) =>{
+                          if(desk.id === element.id) {
+                            console.log("Updating desk:", desk.id);
+                          return new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), desk.getAccomidations());
+                        } else {
+                          return desk;
+                          }
+                        })
                       );
                       setCurrDesk(element);
                       setCurrItem(undefined);
@@ -690,10 +727,13 @@ export default function SeatingChart() {
                       <IconButton aria-label="delete" size="small" sx={{ position: "absolute", top: 0, right: 0, textAlign: "right",backgroundColor: deskToSwap?.getId() === element.getId() ? 'lightblue' : 'white' }} onClick={(e) => { handleSwap(e, element, true) }}>
         <SwapHorizIcon fontSize="small" />
       </IconButton>
-      // <SwapHorizIcon fontSize="small" color="primary" />
                     }
-                     
-                    <Typography sx={{ fontSize: "12px", color: "black" }}>{element.name}</Typography>
+                     {!numbersModeOn &&
+                      <Typography sx={{ fontSize: fontSize+"px", color: "black" }}>{element.name}</Typography>
+                    }
+                    {numbersModeOn &&
+                      <Typography sx={{ fontSize: fontSize+"px", color: "black" }}>{indexCurr +1}</Typography>
+                    }
                   </Rnd>
                   
                 );
@@ -705,22 +745,29 @@ export default function SeatingChart() {
                   // <Box sx={{ margin: "0px", padding: "0px" }} key={`box-${element.id}`}
                   <Rnd
                     key={element.id}
-
+                    bounds="parent"
                     style={{
                       display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      alignItems: "left",
+                      // justifyContent: "center",
+                      textAlign: "left",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "clip",
+                      paddingTop: "5px",
                       // border: "solid 1px #ddd",
                       border: element.getActive() === true ? '1px solid blue' : '1px solid black',
                       background: "#d9d9d9",
                       borderRadius: element.shape === 'rectangle' ? '0px' : '200px',
-                      zIndex: 1000
+                      width: `${element.widthValue}px`,
+                      height: `${element.heightValue}px`,
+                      zIndex: 1000,
+                      position:'absolute'
                     }}
-                    bounds="parent"
                     size={{ width: element.widthValue, height: element.heightValue }}
                     position={{ x: element.xValue, y: element.yValue }}
                     onClick={(e: any) => {
-                      // e.preventDefault();
+                      e.preventDefault();
                       // e.stopPropagation();
                       e.stopPropagation(); //don't have the body onClick function run
                       setCurrDesk(undefined);
@@ -739,7 +786,7 @@ export default function SeatingChart() {
                       );
                       // alert("hello");
                     }}
-
+                    
                     onDragStop={(e, d) => {
                       setItemData(element);
                       setItems((prevItems: Item[]) =>
@@ -781,7 +828,7 @@ export default function SeatingChart() {
                     }}
 
                   >
-                    <Typography sx={{ fontSize: "12px", color: "black" }}>{element.name}</Typography>
+                    <Typography sx={{ fontSize: fontSize+"px", color: "black" }}>{element.name}</Typography>
                   </Rnd>
                   // </Box>
                 );
@@ -793,23 +840,25 @@ export default function SeatingChart() {
             sx={{
               width: "400px",
               height: "100%",
-              // borderColor: "black",
-              // borderWidth:"thick",
               backgroundColor: "rgb(235,235,235)",
-              // borderLeft: '2px solid black',
               justifyContent: "center",
               textAlign: "center",
               paddingTop: "10px"
             }}
-
-            onClick={() => {
-              console.log("clicked");
-              console.log(JSON.stringify(currDesk));
-      console.log(JSON.stringify(currItem));
-            }}
           >
-            <Button variant="solid" color="neutral" onClick={() => setOpen(true)}>
-              Import Students
+            <Button variant="solid" color="neutral" onClick={() => { setOpen(true); 
+              let students = "";
+              for (let i = 0; i < desks.length; i++){
+                let desk = desks[i];
+                if (i !== desks.length - 1) {
+                  students += desk.getName() + "\n";
+                } else {
+                  students += desk.getName();
+                }
+              }
+              setStudentsToAdd(students);
+            }}>
+              Students List
             </Button>
             <Button variant="solid" onClick={randomizeStudents} sx={{ width: "175px", marginRight: "15px", marginLeft: "10px" }}>
               Randomize Students
@@ -826,24 +875,27 @@ export default function SeatingChart() {
                 sx={{ maxWidth: 500, borderRadius: 'md', p: 3, boxShadow: 'lg' }}
               >
                 <ModalClose variant="plain" sx={{ m: 1 }} />
+                
                 <Typography
                   component="h2"
                   id="modal-title"
                   level="h4"
                   textColor="inherit"
-                  sx={{ fontWeight: 'lg', mb: 1 }}
+                  sx={{ fontWeight: 'lg', mb: 1, marginRight:"10px" }}
                 >
-                  Import Students
+                  Students List
                 </Typography>
+      
+      
                 <Typography id="modal-desc" textColor="text.tertiary">
-                  Please keep in mind that importing students will override current students. Proceed with caution.
+                  Please keep in mind that updating this list will override current students. Proceed with caution.
                 </Typography>
 
                 <Stack spacing={1}>
                   <Textarea
                     placeholder="Enter students here, seperated by new lines."
                     minRows={3}
-                    maxRows={6}
+                    maxRows={10}
                     variant="outlined"
                     value={studentsToAdd}
                     onChange={(event) => {
@@ -852,10 +904,69 @@ export default function SeatingChart() {
                     required
                     id="student_input"
                   />
-                  <Button type="submit" onClick={() => { setStudents(); setOpen(false) }}>Submit</Button>
+                  <Button type="submit" onClick={() => { setStudents(); setOpen(false) }}>Update</Button>
+                  {
+                    numbersModeOn &&
+                    <Button variant="solid" onClick={copyNumberedList} >
+                    Copy Numbered List
+                    </Button>
+                    }
                 </Stack>
               </Sheet>
             </Modal>
+            <Box sx={{marginTop:"5px", display:"flex",width: "100%", gap:"10px",
+              justifyContent: "center",
+              textAlign: "center",}}>
+            {!openNotes &&
+            <Button onClick={()=>{setOpenNotes(true)}} >
+        Open Notes <ArrowDropDownIcon />
+      </Button>
+            }
+            {openNotes &&
+              <Box>
+            <Button onClick={()=>{setOpenNotes(false)}}>
+        Close Notes <ArrowDropUpIcon />
+              </Button>
+              <Box sx={{padding:"5px"}}>
+              <Textarea value={notes}  onChange={(event) => {
+                      setNotes(event.target.value);
+                    }} minRows={2} maxRows={15} />
+                </Box>
+                </Box>
+              }
+            
+            {!openSetUp &&
+            <Button onClick={()=>{setOpenSetUp(true)}} >
+        Open Set Up <ArrowDropDownIcon />
+      </Button>
+            }
+            {openSetUp &&
+              <Box>
+            <Button onClick={()=>{setOpenSetUp(false)}}>
+        Close Set Up <ArrowDropUpIcon />
+              </Button>
+
+               
+            <Box sx={{  display: "flex", 
+  width: "100%", 
+  justifyContent: "center", 
+  alignItems: "center", gap:"10px", marginTop:"5px"}}>
+              <Typography sx={{marginLeft:"5px"}}>Font Size:</Typography>
+            <Input
+                    type="number"
+                    // defaultValue={50}
+                    value={fontSize}
+                    slotProps={{
+                      input: {
+                        ref: inputRef,
+                        min: 1,
+                        max: 20,
+                        step: 1,
+                      },
+                    }}
+                onChange={(e:any) => { setFontSize(parseInt(e.target.value, 10) || 12) }}
+              />
+              </Box>
             <Typography sx={{ margin: "5px" }}>Width : </Typography>
             <Slider
               sx={{ width: "300px", margin: "5px", marginLeft: "15px" }}
@@ -884,7 +995,9 @@ export default function SeatingChart() {
               marks={marks}
               onChange={updateHeight}
             />
-
+ </Box>
+              }
+              </Box>
             <Box sx={{ minWidth: 240 }}>
               <Box
                 sx={{
@@ -959,7 +1072,7 @@ export default function SeatingChart() {
                     ))}
                   </List>
                 </RadioGroup>
-                {objToAdd === "desk"
+                {/* {objToAdd === "desk"
                   ? <Box sx={{ display: "inline-block", margin: "10px" }}>
                     <Typography sx={{ textSize: "9px", marginBottom: "10px" }}>
                       Special Accomidations :
@@ -992,7 +1105,7 @@ export default function SeatingChart() {
                       <Option value="fs">Front Seat</Option>
                     </Select></Box>
                   : <Box></Box>
-                }
+                } */}
                 <Typography sx={{ textSize: "9px", marginBottom: "10px" }}>
                   Label :
                 </Typography>
@@ -1105,12 +1218,17 @@ export default function SeatingChart() {
                 Add
                 </Button>
               </Box>
-              <Box style={{ display: "flex" }}>
+              <Box style={{ display: "flex", alignItems:"center" }}>
+                <Typography>Swap </Typography>
               <Switch
                 checked={swapModeOn}
                 onChange={(event) => { setSwapModeOn(event?.target.checked) }}
-        // inputProps={{ 'aria-label': 'controlled' }}
-      />
+                />
+                 <Typography>Number </Typography>
+              <Switch
+                checked={numbersModeOn}
+                onChange={(event) => { setNumbersModeOn(event?.target.checked) }}
+                />
               </Box>
             
               <Box sx={{ display: "flex", justifyContent: "space-between", margin: "15px", width: "100%" }}>
