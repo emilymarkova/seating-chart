@@ -7,6 +7,8 @@ import IconButton from '@mui/material/IconButton';
 import Slider from "@mui/joy/Slider";
 import Button from "@mui/joy/Button";
 import Switch from '@mui/material/Switch';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import Input from "@mui/joy/Input";
@@ -61,7 +63,8 @@ class Item {
     xValue: number,
     yValue: number,
     widthValue: number,
-    heightValue: number) {
+    heightValue: number,
+    colorValue: string) {
     this.active = active;
     this.id = id;
     this.shape = shape;
@@ -70,6 +73,7 @@ class Item {
     this.yValue = yValue;
     this.widthValue = widthValue;
     this.heightValue = heightValue;
+    this.colorValue = colorValue;
   }
 
   getShape() {
@@ -80,6 +84,10 @@ class Item {
   }
   getActive() {
     return this.active;
+  }
+
+  getColorValue() {
+    return this.colorValue;
   }
   getName() {
     return this.name;
@@ -101,14 +109,17 @@ class Item {
     this.shape = newShape;
   }
 
+
+  setColorValue(newColorValue: string) {
+    this.colorValue = newColorValue;
+  }
+
   setActive(active: boolean) {
     this.active = active;
     console.log("setting : " + active);
   }
 
-  // setId() {
-  //   return this.id;
-  // }
+
   setName(newName: string) {
     this.name = newName;
   }
@@ -135,8 +146,9 @@ class Desk extends Item {
     yValue: number,
     widthValue: number,
     heightValue: number,
+    colorValue: string,
     accomidations: string[]) {
-    super(active, id, shape, name, xValue, yValue, widthValue, heightValue);
+    super(active, id, shape, name, xValue, yValue, widthValue, heightValue, colorValue);
     this.accomidations = accomidations;
   }
 
@@ -157,10 +169,13 @@ function valueText(value: number) {
 
 export default function SeatingChart() {
   const [swapModeOn, setSwapModeOn] = useState(false);
+  const [colorModeOn, setColorModeOn] = useState(false);
+  const [noteBoxModeOn, setNoteBoxModeOn] = useState(false);
+  const [colorToSet, setColorToSet] = useState("#000000");
   const [numbersModeOn, setNumbersModeOn] = useState(false);
-  const [deskToSwap, setDeskToSwap] = useState<Desk|null>(null);
-  const [itemWidth, setWidth] = useState(100);
-  const [itemHeight, setHeight] = useState(100);
+  const [deskToSwap, setDeskToSwap] = useState<Desk | null>(null);
+  const [itemWidth, setWidth] = useState(300);
+  const [itemHeight, setHeight] = useState(300);
   const [fontSize, setFontSize] = useState("12");
   const initialItems: Item[] = [];
   const [items, setItems] = useState(initialItems);
@@ -181,22 +196,20 @@ export default function SeatingChart() {
   const [openSetUp, setOpenSetUp] = React.useState<boolean>(false);
   const [notes, setNotes] = React.useState("");
   const [studentsToAdd, setStudentsToAdd] = useState('');
-  // const seatingChartBodyRef = useRef(null);
 
 
 
   useEffect(() => {
     console.log("running");
     console.log(objAccomidations);
-    // if (seatingChartBodyRef.current) {
     function handleClick() {
       setItems((prevItems: Item[]) =>
         prevItems.map((item: Item) => {
-          return new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue());
+          return new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
         }));
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk, i) => {
-          return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations());
+          return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations());
         }));
       setCurrItem(undefined);
       setCurrDesk(undefined);
@@ -232,7 +245,7 @@ export default function SeatingChart() {
     setObjHeight(parseInt(e.target.value, 10) || 50);
     var newHeight = parseInt(e.target.value, 10) || 50;
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), newHeight, currDesk.getAccomidations());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), newHeight, currDesk.getColorValue(), currDesk.getAccomidations());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -240,7 +253,7 @@ export default function SeatingChart() {
     }
     else if (currItem !== undefined) {
       currItem.setHeightValue(e.target.value);
-      const updatedItem = new Item(currItem.getActive(), currItem.getId(), currItem.getShape(), currItem.getName(), currItem.getXValue(), currItem.getYValue(), currItem.getWidthValue(), newHeight);
+      const updatedItem = new Item(currItem.getActive(), currItem.getId(), currItem.getShape(), currItem.getName(), currItem.getXValue(), currItem.getYValue(), currItem.getWidthValue(), newHeight, currItem.getColorValue());
       setCurrItem(updatedItem);
       setItems((prevItems: Item[]) =>
         prevItems.map((item) => (item.id === currItem.id ? updatedItem : item))
@@ -251,7 +264,7 @@ export default function SeatingChart() {
     setObjWidth(parseInt(e.target.value, 10) || 50);
     var newWidth = parseInt(e.target.value, 10) || 50
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), newWidth, currDesk.getHeightValue(), currDesk.getAccomidations());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), newWidth, currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -259,7 +272,7 @@ export default function SeatingChart() {
     }
     else if (currItem !== undefined) {
       currItem.setWidthValue(e.target.value);
-      const updatedItem = new Item(currItem.getActive(), currItem.getId(), currItem.getShape(), currItem.getName(), currItem.getXValue(), currItem.getYValue(), newWidth, currItem.getHeightValue()
+      const updatedItem = new Item(currItem.getActive(), currItem.getId(), currItem.getShape(), currItem.getName(), currItem.getXValue(), currItem.getYValue(), newWidth, currItem.getHeightValue(), currItem.getColorValue()
       );
       setCurrItem(updatedItem);
       setItems((prevItems: Item[]) =>
@@ -294,7 +307,7 @@ export default function SeatingChart() {
     setObjLabel(e.target.value);
     var label = e.target.value;
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), label, currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getAccomidations());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), label, currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -302,7 +315,7 @@ export default function SeatingChart() {
     }
     else if (currItem !== undefined) {
       currItem.setName(e.target.value);
-      const updatedItem = new Item(currItem.getActive(), currItem.getId(), currItem.getShape(),label, currItem.getXValue(), currItem.getYValue(), currItem.getWidthValue(), currItem.getHeightValue()
+      const updatedItem = new Item(currItem.getActive(), currItem.getId(), currItem.getShape(), label, currItem.getXValue(), currItem.getYValue(), currItem.getWidthValue(), currItem.getHeightValue(), currItem.getColorValue()
       );
       setCurrItem(updatedItem);
       setItems((prevItems: Item[]) =>
@@ -314,7 +327,7 @@ export default function SeatingChart() {
     const xValue = parseInt(e.target.value, 10) || 50;
     setObjX(xValue)
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), xValue, currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getAccomidations());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), xValue, currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -322,7 +335,7 @@ export default function SeatingChart() {
     }
     else if (currItem !== undefined) {
       currItem.setXValue(e.target.value);
-      const updatedItem = new Item(currItem.getActive(), currItem.getId(), currItem.getShape(), currItem.getName(), xValue, currItem.getYValue(), currItem.getWidthValue(), currItem.getHeightValue()
+      const updatedItem = new Item(currItem.getActive(), currItem.getId(), currItem.getShape(), currItem.getName(), xValue, currItem.getYValue(), currItem.getWidthValue(), currItem.getHeightValue(), currItem.getColorValue()
       );
       setCurrItem(updatedItem);
       setItems((prevItems: Item[]) =>
@@ -334,7 +347,7 @@ export default function SeatingChart() {
     const yValue = parseInt(e.target.value, 10) || 50;
     setObjY(yValue);
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), yValue, currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getAccomidations());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), yValue, currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -342,7 +355,7 @@ export default function SeatingChart() {
     }
     else if (currItem !== undefined) {
       currItem.setYValue(e.target.value);
-      const updatedItem = new Item(currItem.getActive(), currItem.getId(), currItem.getShape(), currItem.getName(), currItem.getXValue(), yValue, currItem.getWidthValue(), currItem.getHeightValue()
+      const updatedItem = new Item(currItem.getActive(), currItem.getId(), currItem.getShape(), currItem.getName(), currItem.getXValue(), yValue, currItem.getWidthValue(), currItem.getHeightValue(), currItem.getColorValue()
       );
       setCurrItem(updatedItem);
       setItems((prevItems: Item[]) =>
@@ -368,7 +381,7 @@ export default function SeatingChart() {
       objX,
       objY,
       objWidth,
-      objHeight)]);
+      objHeight, "#000000")]);
     console.log("new items: " + JSON.stringify(items, null, 2));
   };
 
@@ -383,7 +396,7 @@ export default function SeatingChart() {
     }
 
 
-    setDesks((prevDesks: Desk[]) => [...prevDesks, new Desk(false, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, accomidations)]);
+    setDesks((prevDesks: Desk[]) => [...prevDesks, new Desk(false, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, "#000000", accomidations)]);
     console.log("Updated desks:", desks);
 
   };
@@ -391,30 +404,30 @@ export default function SeatingChart() {
   const removeItem = () => {
     setItems(items.filter(item => item.getId() !== currItem?.getId()));
     setObjWidth(50);
-      setObjHeight(50);
-      setObjX(50);
-      setObjY(50);
-      setObjLabel("Label");
-      setObjAccomidations([]);
+    setObjHeight(50);
+    setObjX(50);
+    setObjY(50);
+    setObjLabel("Label");
+    setObjAccomidations([]);
     setCurrItem(undefined);
   };
 
   const removeDesk = () => {
     setDesks(desks.filter(desk => desk.getId() !== currDesk?.getId()));
     setObjWidth(50);
-      setObjHeight(50);
-      setObjX(50);
-      setObjY(50);
-      setObjLabel("Label");
-      setObjAccomidations([]);
+    setObjHeight(50);
+    setObjX(50);
+    setObjY(50);
+    setObjLabel("Label");
+    setObjAccomidations([]);
     setCurrDesk(undefined);
   };
 
   const handleSwap = function (e: React.MouseEvent, desk: Desk, swapping: boolean) {
-    e.stopPropagation(); 
+    e.stopPropagation();
 
     if (!swapping) {
-      if (deskToSwap !==null && deskToSwap.getId() === desk.getId()) {
+      if (deskToSwap !== null && deskToSwap.getId() === desk.getId()) {
         setDeskToSwap(null);
       }
       return;
@@ -425,38 +438,38 @@ export default function SeatingChart() {
     } else {
       //go ahead and swap the two desks
       var desk1 = new Desk(
-        false, 
-        deskToSwap.getId(),     
-        desk.getShape(),       
-        deskToSwap.getName(),  
-        desk.getXValue(),      
-        desk.getYValue(),     
-        desk.getWidthValue(),  
-        desk.getHeightValue(), 
+        false,
+        deskToSwap.getId(),
+        desk.getShape(),
+        deskToSwap.getName(),
+        desk.getXValue(),
+        desk.getYValue(),
+        desk.getWidthValue(),
+        desk.getHeightValue(),
         deskToSwap.getAccomidations()
       );
 
       var desk2 = new Desk(
-        false, 
-        desk.getId(),     
-        deskToSwap.getShape(), 
-        desk.getName(),        
-        deskToSwap.getXValue(), 
-        deskToSwap.getYValue(), 
+        false,
+        desk.getId(),
+        deskToSwap.getShape(),
+        desk.getName(),
+        deskToSwap.getXValue(),
+        deskToSwap.getYValue(),
         deskToSwap.getWidthValue(),
         deskToSwap.getHeightValue(),
         desk.getAccomidations()
       );
       setDesks((prevDesks: Desk[]) =>
-      prevDesks.map((deskInDesks: Desk) =>{
-        if(deskInDesks.getId() === desk1.getId()) {
-          return desk1;
-      } else if (deskInDesks.getId() === desk2.getId()) {
-        return desk2;
-      } else {
-        return deskInDesks;
+        prevDesks.map((deskInDesks: Desk) => {
+          if (deskInDesks.getId() === desk1.getId()) {
+            return desk1;
+          } else if (deskInDesks.getId() === desk2.getId()) {
+            return desk2;
+          } else {
+            return deskInDesks;
+          }
         }
-      }
         ));
       setDeskToSwap(null);
     }
@@ -476,26 +489,23 @@ export default function SeatingChart() {
     }
   }
   const setItemData = (item: Item) => {
-    // alert("calling item data");
     setObjToAdd("placeholder");
-  setObjShapeToAdd(item.getShape());
-  setObjLabel(item.getName());
-  setObjX(item.getXValue());
-  setObjY(item.getYValue());
-  setObjWidth(item.getWidthValue());
-  setObjHeight(item.getHeightValue());
+    setObjShapeToAdd(item.getShape());
+    setObjLabel(item.getName());
+    setObjX(item.getXValue());
+    setObjY(item.getYValue());
+    setObjWidth(item.getWidthValue());
+    setObjHeight(item.getHeightValue());
   }
 
   const setDeskData = (desk: Desk) => {
-    // alert("calling desk data");
     setObjToAdd("desk");
-  setObjShapeToAdd(desk.getShape());
-  setObjLabel(desk.getName());
-  setObjX(desk.getXValue());
-  setObjY(desk.getYValue());
-  setObjWidth(desk.getWidthValue());
-  setObjHeight(desk.getHeightValue());
-    // setObjAccomidations(desk.getAccomidations() || []);
+    setObjShapeToAdd(desk.getShape());
+    setObjLabel(desk.getName());
+    setObjX(desk.getXValue());
+    setObjY(desk.getYValue());
+    setObjWidth(desk.getWidthValue());
+    setObjHeight(desk.getHeightValue());
   }
 
   const setStudents = () => {
@@ -509,11 +519,11 @@ export default function SeatingChart() {
 
       for (let i = 0; i < numberOfDesksToAdd; i++) {
         if (objToAdd !== "placeholder") {
-          desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, objWidth, objHeight, []));
+          desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, objWidth, objHeight, colorToSet, []));
         } else {
-          desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, 50, 50, []));
+          desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, 50, 50, "#000000", []));
         }
-        
+
 
       }
       setDesks((prevDesks: Desk[]) => [...prevDesks, ...desksToAdd]);//make sure there are no concurrent timing issues
@@ -523,7 +533,7 @@ export default function SeatingChart() {
 
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
-        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations());
+        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations());
         if (i < studentArr.length) {
           deskCopy.setName(studentArr[i]);
         } else {
@@ -538,12 +548,12 @@ export default function SeatingChart() {
   const copyNumberedList = () => {
     setStudents();
     let students = "";
-    for (let i = 0; i < desks.length; i++){
+    for (let i = 0; i < desks.length; i++) {
       let desk = desks[i];
       if (i !== desks.length - 1) {
-        students += i+1 + ". " + desk.getName() + "\n";
+        students += i + 1 + ". " + desk.getName() + "\n";
       } else {
-        students += i+1 + ". " + desk.getName();
+        students += i + 1 + ". " + desk.getName();
       }
     }
     navigator.clipboard.writeText(students);
@@ -558,7 +568,7 @@ export default function SeatingChart() {
     randomizedArr.sort(function () { return 0.5 - Math.random() });
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
-        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations());
+        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations());
         deskCopy.setAccomidations(randomizedArr[i].accomidations);
         deskCopy.setName(randomizedArr[i].name);
         return deskCopy;
@@ -569,7 +579,6 @@ export default function SeatingChart() {
   }
 
   const addObj = (e: any) => {
-    // alert(objToAdd);
     if (objToAdd === "placeholder") {
       addItem();
     } else {
@@ -578,7 +587,6 @@ export default function SeatingChart() {
   }
 
   const removeObj = (e: any) => {
-    // alert(objToAdd);
     if (objToAdd === "placeholder") {
       removeItem();
     } else {
@@ -606,7 +614,6 @@ export default function SeatingChart() {
       >
         <Box
           sx={{
-            // flexGrow: 1,
             width: "100%",
             display: "flex",
             justifyContent: "flex-end",
@@ -616,7 +623,6 @@ export default function SeatingChart() {
           <Box
 
             sx={{
-              // flexGrow: 1, // Takes up all available space
               display: "flex",
               width: "100%",
               height: "100%",
@@ -626,7 +632,6 @@ export default function SeatingChart() {
           >
             <Box id="tableArea" sx={{
               position: "relative", // This is crucial!
-              // flexGrow: 1,
               border: '2px solid black',
               width: itemWidth,
               height: itemHeight,
@@ -634,7 +639,6 @@ export default function SeatingChart() {
               maxHeight: "100%",
               display: "block",
               overflow: "visible",
-              // overflow: "visible" // Allow items to overflow if needed
             }}>
               {desks.map((element: Desk, indexCurr: number) => {
                 return (
@@ -643,10 +647,10 @@ export default function SeatingChart() {
                     bounds="parent"
                     style={{
                       display: "flex",
-                      alignItems: "left",
-                      // justifyContent: "center",
-                      // border: "solid 1px #ddd",
-                      border: element.getActive() === true ? '1px solid blue' : '1px solid black',
+                      textWrap: "wrap",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: element.getActive() === true ? '1px solid blue' : `1px solid ${element.getColorValue()}`,
                       width: `${element.widthValue}px`,
                       height: `${element.heightValue}px`,
                       background: "#ffffff",
@@ -657,25 +661,28 @@ export default function SeatingChart() {
                       paddingTop: "5px",
                       borderRadius: element.shape === 'rectangle' ? '0px' : '200px',
                       zIndex: 1000,
-                      position:"absolute",
+                      position: "absolute",
                     }}
                     size={{ width: element.widthValue, height: element.heightValue }}
                     position={{ x: element.xValue, y: element.yValue }}
                     onClick={(e: any) => {
                       e.preventDefault();
-                      // e.preventDefault();
                       e.stopPropagation(); //stop the overall onClick from running so it doens't override this
                       setCurrDesk(element);
                       setCurrItem(undefined);
                       setObjToAdd("desk");
                       setDeskData(element);
                       setObjShapeToAdd(element.getShape());
-                      console.log("just got clicked");
+
+                      let color = element.getColorValue();
+                      if (colorModeOn) {
+                        color = colorToSet;
+                      }
                       setDesks((prevDesks: Desk[]) =>
                         prevDesks.map((desk: Desk) =>
                           desk.id === element.id
-                            ? new Desk(true, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations())
-                            : new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations())
+                            ? new Desk(true, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), color, desk.getAccomidations())
+                            : new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations())
                         )
                       );
                     }}
@@ -683,10 +690,15 @@ export default function SeatingChart() {
 
                     onDragStop={(e, d) => {
                       setDeskData(element);
+
+                      let color = element.getColorValue();
+                      if (colorModeOn) {
+                        color = colorToSet;
+                      }
                       setDesks((prevDesks: Desk[]) =>
                         prevDesks.map((desk: Desk) =>
                           desk.id === element.id
-                            ? new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), d.x, d.y, desk.getWidthValue(), desk.getHeightValue(), desk.getAccomidations())
+                            ? new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), d.x, d.y, desk.getWidthValue(), desk.getHeightValue(), color, desk.getAccomidations())
                             : desk
                         )
                       );
@@ -700,15 +712,19 @@ export default function SeatingChart() {
                       setObjHeight(element.getHeightValue());
                     }}
                     onResizeStop={(e, direction, ref, delta, position) => {
-                      
+
+                      let color = element.getColorValue();
+                      if (colorModeOn) {
+                        color = colorToSet;
+                      }
                       setDeskData(element);
                       setDesks((prevDesks: Desk[]) =>
-                        prevDesks.map((desk: Desk) =>{
-                          if(desk.id === element.id) {
+                        prevDesks.map((desk: Desk) => {
+                          if (desk.id === element.id) {
                             console.log("Updating desk:", desk.id);
-                          return new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), desk.getAccomidations());
-                        } else {
-                          return desk;
+                            return new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), color, desk.getAccomidations());
+                          } else {
+                            return desk;
                           }
                         })
                       );
@@ -724,113 +740,126 @@ export default function SeatingChart() {
                   >
                     {
                       swapModeOn &&
-                      <IconButton aria-label="delete" size="small" sx={{ position: "absolute", top: 0, right: 0, textAlign: "right",backgroundColor: deskToSwap?.getId() === element.getId() ? 'lightblue' : 'white' }} onClick={(e) => { handleSwap(e, element, true) }}>
-        <SwapHorizIcon fontSize="small" />
-      </IconButton>
+                      <IconButton aria-label="delete" size="small" sx={{ position: "absolute", top: 0, right: 0, textAlign: "right", backgroundColor: deskToSwap?.getId() === element.getId() ? 'lightblue' : 'white' }} onClick={(e) => { handleSwap(e, element, true) }}>
+                        <SwapHorizIcon fontSize="small" />
+                      </IconButton>
                     }
-                     {!numbersModeOn &&
-                      <Typography sx={{ fontSize: fontSize+"px", color: "black" }}>{element.name}</Typography>
+                    {!numbersModeOn &&
+                      <Typography sx={{
+                        fontSize: fontSize + "px", color: "black", maxWidth: "100%", textWrap: "wrap", overflow: "hidden",
+                        textOverflow: "ellipsis", padding: "2px",
+                        wordBreak: "break-word"
+                      }}>{element.name}</Typography>
                     }
                     {numbersModeOn &&
-                      <Typography sx={{ fontSize: fontSize+"px", color: "black" }}>{indexCurr +1}</Typography>
+                      <Typography sx={{ fontSize: fontSize + "px", color: "black" }}>{indexCurr + 1}</Typography>
+                    }
+                    {noteBoxModeOn &&
+                      <img src="/images/notes.png" alt="Notes"
+                        style={{ width: 'auto', height: 'auto', maxWidth: "100%", maxHeight: "50%" }} //not working properly
+                      />
                     }
                   </Rnd>
-                  
+
                 );
               })}
-              {/* .slice().reverse() */}
               {items.map((element: Item, indexCurr: number) => {
-                // setItemData(element);
-                return (
-                  // <Box sx={{ margin: "0px", padding: "0px" }} key={`box-${element.id}`}
-                  <Rnd
-                    key={element.id}
-                    bounds="parent"
-                    style={{
-                      display: "flex",
-                      alignItems: "left",
-                      // justifyContent: "center",
-                      textAlign: "left",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "clip",
-                      paddingTop: "5px",
-                      // border: "solid 1px #ddd",
-                      border: element.getActive() === true ? '1px solid blue' : '1px solid black',
-                      background: "#d9d9d9",
-                      borderRadius: element.shape === 'rectangle' ? '0px' : '200px',
-                      width: `${element.widthValue}px`,
-                      height: `${element.heightValue}px`,
-                      zIndex: 1000,
-                      position:'absolute'
-                    }}
-                    size={{ width: element.widthValue, height: element.heightValue }}
-                    position={{ x: element.xValue, y: element.yValue }}
-                    onClick={(e: any) => {
-                      e.preventDefault();
-                      // e.stopPropagation();
-                      e.stopPropagation(); //don't have the body onClick function run
-                      setCurrDesk(undefined);
-                      setCurrItem(element);
-                      setObjToAdd("placeholder");
+                return (<Rnd
+                  key={element.id}
+                  bounds="parent"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "clip",
+                    paddingTop: "5px",
+                    border: element.getActive() === true ? '1px solid blue' : `1px solid ${element.getColorValue()}`,
+                    background: "#d9d9d9",
+                    borderRadius: element.shape === 'rectangle' ? '0px' : '200px',
+                    width: `${element.widthValue}px`,
+                    height: `${element.heightValue}px`,
+                    zIndex: 1000,
+                    position: 'absolute'
+                  }}
+                  size={{ width: element.widthValue, height: element.heightValue }}
+                  position={{ x: element.xValue, y: element.yValue }}
+                  onClick={(e: any) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setCurrDesk(undefined);
+                    setCurrItem(element);
+                    setObjToAdd("placeholder");
 
-                      setItemData(element);
-                      setObjShapeToAdd(element.getShape());
-                      element.setActive(true);
-                      setItems((prevItems: Item[]) =>
-                        prevItems.map((item: Item) =>
-                          item.id === element.id
-                            ? new Item(true, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue())
-                            : new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue())
-                        )
-                      );
-                      // alert("hello");
-                    }}
-                    
-                    onDragStop={(e, d) => {
-                      setItemData(element);
-                      setItems((prevItems: Item[]) =>
-                        prevItems.map((item: Item) =>
-                          item.id === element.id
-                            ? new Item(item.getActive(), item.getId(), item.getShape(), item.getName(), d.x, d.y, item.getWidthValue(), item.getHeightValue())
-                            : item
-                        )
-                      );
-                      setCurrDesk(undefined);
-                      setCurrItem(element);
-                      setObjToAdd("placeholder");
-                      setObjShapeToAdd(element.getShape());
-                      setObjX(d.x);
-                      setObjY(d.y);
-                      setObjWidth(element.getWidthValue());
-                      setObjHeight(element.getHeightValue());
-
+                    setItemData(element);
+                    setObjShapeToAdd(element.getShape());
+                    let color = element.getColorValue();
+                    if (colorModeOn) {
+                      color = colorToSet;
                     }
+                    setItems((prevItems: Item[]) =>
+                      prevItems.map((item: Item) =>
+                        item.id === element.id
+                          ? new Item(true, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), color)
+                          : new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
+                      )
+                    );
+                  }}
+
+                  onDragStop={(e, d) => {
+                    setItemData(element);
+                    let color = element.getColorValue();
+                    if (colorModeOn) {
+                      color = colorToSet;
                     }
-                    onResizeStop={(e, direction, ref, delta, position) => {
-                      setItemData(element);
-                      setItems((prevItems: Item[]) =>
-                        prevItems.map((item: Item) =>
-                          item.id === element.id
-                            ? new Item(item.getActive(), item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10))
-                            : item
-                        )
-                      );
-                      setCurrDesk(undefined);
-                      setCurrItem(element);
-                      setObjToAdd("placeholder");
-                      setObjShapeToAdd(element.getShape());
-                      setObjX(position.x);
-                      setObjY(position.y);
-                      setObjWidth(parseInt(ref.style.width, 10));
-                      setObjHeight(parseInt(ref.style.height, 10));
+                    setItems((prevItems: Item[]) =>
+                      prevItems.map((item: Item) =>
+                        item.id === element.id
+                          ? new Item(item.getActive(), item.getId(), item.getShape(), item.getName(), d.x, d.y, item.getWidthValue(), item.getHeightValue(), color)
+                          : item
+                      )
+                    );
+                    setCurrDesk(undefined);
+                    setCurrItem(element);
+                    setObjToAdd("placeholder");
+                    setObjShapeToAdd(element.getShape());
+                    setObjX(d.x);
+                    setObjY(d.y);
+                    setObjWidth(element.getWidthValue());
+                    setObjHeight(element.getHeightValue());
 
-                    }}
+                  }
+                  }
+                  onResizeStop={(e, direction, ref, delta, position) => {
+                    setItemData(element);
+                    let color = element.getColorValue();
+                    if (colorModeOn) {
+                      color = colorToSet;
+                    }
+                    setItems((prevItems: Item[]) =>
+                      prevItems.map((item: Item) =>
+                        item.id === element.id
+                          ? new Item(item.getActive(), item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), color)
+                          : item
+                      )
+                    );
+                    setCurrDesk(undefined);
+                    setCurrItem(element);
+                    setObjToAdd("placeholder");
+                    setObjShapeToAdd(element.getShape());
+                    setObjX(position.x);
+                    setObjY(position.y);
+                    setObjWidth(parseInt(ref.style.width, 10));
+                    setObjHeight(parseInt(ref.style.height, 10));
 
-                  >
-                    <Typography sx={{ fontSize: fontSize+"px", color: "black" }}>{element.name}</Typography>
-                  </Rnd>
-                  // </Box>
+                  }}
+
+                >
+                  <Typography sx={{ fontSize: fontSize + "px", color: "black" }}>{element.name}</Typography>
+
+                </Rnd>
                 );
               })}
             </Box>
@@ -846,9 +875,10 @@ export default function SeatingChart() {
               paddingTop: "10px"
             }}
           >
-            <Button variant="solid" color="neutral" onClick={() => { setOpen(true); 
+            <Button variant="solid" color="neutral" onClick={() => {
+              setOpen(true);
               let students = "";
-              for (let i = 0; i < desks.length; i++){
+              for (let i = 0; i < desks.length; i++) {
                 let desk = desks[i];
                 if (i !== desks.length - 1) {
                   students += desk.getName() + "\n";
@@ -875,18 +905,18 @@ export default function SeatingChart() {
                 sx={{ maxWidth: 500, borderRadius: 'md', p: 3, boxShadow: 'lg' }}
               >
                 <ModalClose variant="plain" sx={{ m: 1 }} />
-                
+
                 <Typography
                   component="h2"
                   id="modal-title"
                   level="h4"
                   textColor="inherit"
-                  sx={{ fontWeight: 'lg', mb: 1, marginRight:"10px" }}
+                  sx={{ fontWeight: 'lg', mb: 1, marginRight: "10px" }}
                 >
                   Students List
                 </Typography>
-      
-      
+
+
                 <Typography id="modal-desc" textColor="text.tertiary">
                   Please keep in mind that updating this list will override current students. Proceed with caution.
                 </Typography>
@@ -908,53 +938,65 @@ export default function SeatingChart() {
                   {
                     numbersModeOn &&
                     <Button variant="solid" onClick={copyNumberedList} >
-                    Copy Numbered List
+                      Copy Numbered List
                     </Button>
-                    }
+                  }
                 </Stack>
               </Sheet>
             </Modal>
-            <Box sx={{marginTop:"5px", display:"flex",width: "100%", gap:"10px",
+            <Box sx={{
+              marginTop: "5px", display: "flex", width: "100%", gap: "10px",
               justifyContent: "center",
-              textAlign: "center",}}>
-            {!openNotes &&
-            <Button onClick={()=>{setOpenNotes(true)}} >
-        Open Notes <ArrowDropDownIcon />
-      </Button>
-            }
-            {openNotes &&
-              <Box>
-            <Button onClick={()=>{setOpenNotes(false)}}>
-        Close Notes <ArrowDropUpIcon />
-              </Button>
-              <Box sx={{padding:"5px"}}>
-              <Textarea value={notes}  onChange={(event) => {
-                      setNotes(event.target.value);
-                    }} minRows={2} maxRows={15} />
-                </Box>
+              textAlign: "center",
+            }}>
+              {!openNotes &&
+                <Button onClick={() => { setOpenNotes(true) }} >
+                  Open Notes <ArrowDropDownIcon />
+                </Button>
+              }
+
+              {!openSetUp &&
+                <Button onClick={() => { setOpenSetUp(true) }} >
+                  Open Set Up <ArrowDropDownIcon />
+                </Button>
+              }
+              {openNotes &&
+                <Box>
+                  <Button onClick={() => { setOpenNotes(false) }}>
+                    Close Notes <ArrowDropUpIcon />
+                  </Button>
+
                 </Box>
               }
-            
-            {!openSetUp &&
-            <Button onClick={()=>{setOpenSetUp(true)}} >
-        Open Set Up <ArrowDropDownIcon />
-      </Button>
+
+              {openSetUp &&
+
+                <Button onClick={() => { setOpenSetUp(false) }}>
+                  Close Set Up <ArrowDropUpIcon />
+                </Button>
+              }
+
+            </Box>
+
+            {openNotes &&
+              <Box sx={{ padding: "5px" }}>
+                <Textarea value={notes} onChange={(event) => {
+                  setNotes(event.target.value);
+                }} minRows={2} maxRows={15} />
+              </Box>
             }
             {openSetUp &&
-              <Box>
-            <Button onClick={()=>{setOpenSetUp(false)}}>
-        Close Set Up <ArrowDropUpIcon />
-              </Button>
 
-               
-            <Box sx={{  display: "flex", 
-  width: "100%", 
-  justifyContent: "center", 
-  alignItems: "center", gap:"10px", marginTop:"5px"}}>
-              <Typography sx={{marginLeft:"5px"}}>Font Size:</Typography>
-            <Input
+              <Box>
+                <Box sx={{
+                  display: "flex",
+                  width: "100%",
+                  justifyContent: "center",
+                  alignItems: "center", gap: "10px", marginTop: "5px"
+                }}>
+                  <Typography sx={{ marginLeft: "5px" }}>Font Size:</Typography>
+                  <Input
                     type="number"
-                    // defaultValue={50}
                     value={fontSize}
                     slotProps={{
                       input: {
@@ -964,40 +1006,58 @@ export default function SeatingChart() {
                         step: 1,
                       },
                     }}
-                onChange={(e:any) => { setFontSize(parseInt(e.target.value, 10) || 12) }}
-              />
+                    onChange={(e: any) => { setFontSize(parseInt(e.target.value, 10) || 12) }}
+                  />
+                  <Typography>Color : </Typography>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    sx={{ height: "40px" }}
+                    value={colorToSet}
+                    label="colorToSet"
+                    onChange={(e: any) => { setColorToSet(e.target.value) }}
+                  >
+                    <MenuItem value={"#000000"}>Black</MenuItem>
+                    {/* <MenuItem value={"#0000FF"}>Blue</MenuItem> */}
+                    <MenuItem value={"#FF0000"}>Red</MenuItem>
+                    <MenuItem value={"#FFA500"}>Orange</MenuItem>
+                    <MenuItem value={"#00FF00"}>Green</MenuItem>
+                    <MenuItem value={"#FFC0CB"}>Pink</MenuItem>
+                    <MenuItem value={"#800080"}>Purple</MenuItem>
+                    <MenuItem value={"#964B00"}>Brown</MenuItem>
+                  </Select>
+                </Box>
+                <Typography sx={{ margin: "5px" }}>Width : </Typography>
+                <Slider
+                  sx={{ width: "300px", margin: "5px", marginLeft: "15px" }}
+                  aria-label="Custom marks"
+                  defaultValue={200}
+                  getAriaValueText={valueText}
+                  step={50}
+                  min={100}
+                  max={1200}
+                  color="neutral"
+                  valueLabelDisplay="auto"
+                  onChange={updateWidth}
+                  marks={marks}
+                />
+                <Typography sx={{ margin: "5px" }}>Height : </Typography>
+                <Slider
+                  sx={{ width: "300px", margin: "5px", marginLeft: "15px" }}
+                  aria-label="Custom marks"
+                  defaultValue={200}
+                  getAriaValueText={valueText}
+                  step={50}
+                  min={100}
+                  max={1200}
+                  color="neutral"
+                  valueLabelDisplay="auto"
+                  marks={marks}
+                  onChange={updateHeight}
+                />
               </Box>
-            <Typography sx={{ margin: "5px" }}>Width : </Typography>
-            <Slider
-              sx={{ width: "300px", margin: "5px", marginLeft: "15px" }}
-              aria-label="Custom marks"
-              defaultValue={200}
-              getAriaValueText={valueText}
-              step={50}
-              min={100}
-              max={1200}
-              color="neutral"
-              valueLabelDisplay="auto"
-              onChange={updateWidth}
-              marks={marks}
-            />
-            <Typography sx={{ margin: "5px" }}>Height : </Typography>
-            <Slider
-              sx={{ width: "300px", margin: "5px", marginLeft: "15px" }}
-              aria-label="Custom marks"
-              defaultValue={200}
-              getAriaValueText={valueText}
-              step={50}
-              min={100}
-              max={1200}
-              color="neutral"
-              valueLabelDisplay="auto"
-              marks={marks}
-              onChange={updateHeight}
-            />
- </Box>
-              }
-              </Box>
+            }
+
             <Box sx={{ minWidth: 240 }}>
               <Box
                 sx={{
@@ -1013,9 +1073,7 @@ export default function SeatingChart() {
                 aria-labelledby="example-payment-channel-label"
                 overlay
                 name="example-payment-channel"
-                // defaultValue="placeholder"
                 value={objToAdd}
-                // onChange={(e: any) => { setObjToAdd(e.target.value) }}
                 onClick={(e: any) => { setObjToAdd(e.target.value) }}
                 id="typeRadioGroup"
                 sx={{ alignItems: 'center', justifyContent: "center" }}
@@ -1051,7 +1109,6 @@ export default function SeatingChart() {
                   aria-labelledby="example-payment-channel-label"
                   overlay
                   name="example-payment-channel"
-                  // defaultValue="rectangle"
                   value={objShapeToAdd}
                   onClick={(e: any) => { setObjShapeToAdd(e.target.value) }}
                   onChange={updateObjShape}
@@ -1133,7 +1190,6 @@ export default function SeatingChart() {
                 >
                   <Input
                     type="number"
-                    // defaultValue={50}
                     value={objX}
                     slotProps={{
                       input: {
@@ -1147,7 +1203,6 @@ export default function SeatingChart() {
                   />
                   <Input
                     type="number"
-                    // defaultValue={50}
                     value={objY}
                     slotProps={{
                       input: {
@@ -1178,7 +1233,6 @@ export default function SeatingChart() {
                 >
                   <Input
                     type="number"
-                    // defaultValue={50}
                     value={objWidth}
                     slotProps={{
                       input: {
@@ -1192,7 +1246,6 @@ export default function SeatingChart() {
                   />
                   <Input
                     type="number"
-                    // defaultValue={50}
                     value={objHeight}
                     slotProps={{
                       input: {
@@ -1208,29 +1261,39 @@ export default function SeatingChart() {
               </Stack>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", margin: "15px" }}>
-              { (currDesk || currItem) && 
-              <Button variant="solid" onClick={removeObj} sx={{ width: "70px", marginRight:"15px" }}>
-                Remove
-              </Button>
+              <Box sx={{ display: "flex", justifyContent: "space-between", margin: "15px" }}>
+                {(currDesk || currItem) &&
+                  <Button variant="solid" onClick={removeObj} sx={{ width: "70px", marginRight: "15px" }}>
+                    Remove
+                  </Button>
                 }
-              <Button variant="solid" onClick={addObj} sx={{ width: "50px" }}>
-                Add
+                <Button variant="solid" onClick={addObj} sx={{ width: "50px" }}>
+                  Add
                 </Button>
               </Box>
-              <Box style={{ display: "flex", alignItems:"center" }}>
+              <Box style={{ display: "flex", alignItems: "center" }}>
                 <Typography>Swap </Typography>
-              <Switch
-                checked={swapModeOn}
-                onChange={(event) => { setSwapModeOn(event?.target.checked) }}
+                <Switch
+                  checked={swapModeOn}
+                  onChange={(event) => { setSwapModeOn(event?.target.checked) }}
                 />
-                 <Typography>Number </Typography>
-              <Switch
-                checked={numbersModeOn}
-                onChange={(event) => { setNumbersModeOn(event?.target.checked) }}
+                <Typography>Number </Typography>
+                <Switch
+                  checked={numbersModeOn}
+                  onChange={(event) => { setNumbersModeOn(event?.target.checked) }}
+                />
+                <Typography>Color </Typography>
+                <Switch
+                  checked={colorModeOn}
+                  onChange={(event) => { setColorModeOn(event?.target.checked) }}
+                />
+                <Typography>Note Boxes </Typography>
+                <Switch
+                  checked={noteBoxModeOn}
+                  onChange={(event) => { setNoteBoxModeOn(event?.target.checked) }}
                 />
               </Box>
-            
+
               <Box sx={{ display: "flex", justifyContent: "space-between", margin: "15px", width: "100%" }}>
                 <Button variant="solid" onClick={clearItems} sx={{ width: "175px", marginLeft: "15px" }}>
                   Clear Placeholders

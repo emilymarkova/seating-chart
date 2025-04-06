@@ -55,8 +55,8 @@ export default function SignUp() {
       });
       navigate("/");
       alert("You have successfully signed up and created an account! Make sure to save your login credentials somewhere so you don't forget them!");
-    } catch(error){
-      const errorCode = error.code;
+    } catch (error) {
+      // const errorCode = error.code;
       const errorMessage = error.message;
       setError(errorMessage);
     }

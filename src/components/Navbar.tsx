@@ -53,7 +53,7 @@ export default function NavBar() {
             // href="#navigation-menu"
             onClick={() => { navigate('/') }}
           >
-           <Typography>Table Map</Typography>
+            <Typography>Table Map</Typography>
           </ListItemButton>
         </ListItem>
         {getAuth().currentUser &&
