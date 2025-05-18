@@ -12,7 +12,7 @@ import { getAuth, signOut } from "firebase/auth";
 // import HomeRounded from '@mui/icons-material/HomeRounded';
 // import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import Person from '@mui/icons-material/Person';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+// import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import BackupTableIcon from '@mui/icons-material/BackupTable';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 // import IconButton from '@mui/joy/IconButton';
