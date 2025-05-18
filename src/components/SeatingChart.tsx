@@ -35,7 +35,7 @@ import ListItem from '@mui/joy/ListItem';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Textarea from '@mui/joy/Textarea';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { Box } from '@mui/joy';
 import Modal from '@mui/joy/Modal';
 import ModalClose from '@mui/joy/ModalClose';
@@ -323,73 +323,8 @@ export default function SeatingChart() {
     }
   }
 
-  useEffect(() => {
-    const update = async () => {
-      await updateClassList();
-      // setClassName(classNames[0]);
-      // setSelectedTab(0);
-      // alert('updated');
-      // if (className) {
-      //   await updateInfoForCurrentClass();
-      // }
 
-    }
-    update()
-      .catch(console.error);
-  })
-
-  useEffect(() => {
-    const update = async () => {
-      // alert("new class name: " + className);
-      if (className && className!=="") {
-        await updateInfoForCurrentClass();
-      }
-    }
-    update()
-      .catch(console.error);
-  }, [className])
-
-  useEffect((e: any) => {
-    console.log("running");
-    console.log(objAccomidations);
-    function handleClick(e: any) {
-      if (e.target && e.target === document.getElementById('tableArea')) {
-        console.log("hmmmmmmm changing everything");
-        setItems((prevItems: Item[]) =>
-          prevItems.map((item: Item) => {
-            return new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
-          }));
-        setDesks((prevDesks: Desk[]) =>
-          prevDesks.map((desk, i) => {
-            return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations());
-          }));
-        setCurrItem(undefined);
-        setCurrDesk(undefined);
-        console.log(JSON.stringify(currDesk));
-        console.log(JSON.stringify(currItem));
-        //reset values
-        setObjWidth(50);
-        setObjHeight(50);
-        setObjX(50);
-        setObjY(50);
-        setObjLabel("Label");
-        setObjAccomidations([]);
-      }
-    }
-    // }
-    if (window.document.getElementById('tableArea')) {
-
-      window.document.getElementById('tableArea')!.addEventListener('click', handleClick);
-    }
-    return () => {
-      if (window.document.getElementById('tableArea') && handleClick) {
-        window.document.getElementById('tableArea')!.removeEventListener('click', handleClick);
-      }
-    };
-  }, [objAccomidations, currDesk, currItem, desks, items]);
-
-
-  const updateInfoForCurrentClass = async () => {
+  const updateInfoForCurrentClass =  useCallback(async () => {
     const db = getFirestore(app);
     const auth = getAuth();
     const user = auth.currentUser;
@@ -439,7 +374,75 @@ export default function SeatingChart() {
     } else {
       alert("Please select a class/user to view its details.");
     }
-  };
+  }, [className]);
+
+  useEffect(() => {
+    const update = async () => {
+      await updateClassList();
+      // setClassName(classNames[0]);
+      // setSelectedTab(0);
+      // alert('updated');
+      // if (className) {
+      //   await updateInfoForCurrentClass();
+      // }
+
+    }
+    update()
+      .catch(console.error);
+  })
+
+  useEffect(() => {
+    const update = async () => {
+      // alert("new class name: " + className);
+      if (className && className !== "") {
+        await updateInfoForCurrentClass();
+      }
+    }
+    update()
+      .catch(console.error);
+  }, [className, updateInfoForCurrentClass]);
+
+  useEffect((e: any) => {
+    console.log("running");
+    console.log(objAccomidations);
+    function handleClick(e: any) {
+      if (e.target && e.target === document.getElementById('tableArea')) {
+        console.log("hmmmmmmm changing everything");
+        setItems((prevItems: Item[]) =>
+          prevItems.map((item: Item) => {
+            return new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
+          }));
+        setDesks((prevDesks: Desk[]) =>
+          prevDesks.map((desk, i) => {
+            return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations());
+          }));
+        setCurrItem(undefined);
+        setCurrDesk(undefined);
+        console.log(JSON.stringify(currDesk));
+        console.log(JSON.stringify(currItem));
+        //reset values
+        setObjWidth(50);
+        setObjHeight(50);
+        setObjX(50);
+        setObjY(50);
+        setObjLabel("Label");
+        setObjAccomidations([]);
+      }
+    }
+    // }
+    if (window.document.getElementById('tableArea')) {
+
+      window.document.getElementById('tableArea')!.addEventListener('click', handleClick);
+    }
+    return () => {
+      if (window.document.getElementById('tableArea') && handleClick) {
+        window.document.getElementById('tableArea')!.removeEventListener('click', handleClick);
+      }
+    };
+  }, [objAccomidations, currDesk, currItem, desks, items]);
+
+
+
 
 
   const updateHeight = (e: any) => {

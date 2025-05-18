@@ -9,11 +9,11 @@ import { Link } from 'react-router-dom';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import { app } from "../firebase";
-import { getFirestore, collection, addDoc, getDocs, getDoc, updateDoc, setDoc, doc } from "firebase/firestore";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
 import Input from '@mui/joy/Input';
 import Button from '@mui/joy/Button';
 import Box from '@mui/joy/Box';
-import { getDatabase, ref, set } from "firebase/database";
+// import { getDatabase, ref, set } from "firebase/database";
 import { useAuth } from "../contexts/AuthContext";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
