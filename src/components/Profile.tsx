@@ -14,58 +14,54 @@ import CardActions from '@mui/joy/CardActions';
 import CardOverflow from '@mui/joy/CardOverflow';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import useRef from 'react';
-import KeyIcon from '@mui/icons-material/Key';
 import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
-import { getAuth, sendPasswordResetEmail,updateEmail } from "firebase/auth";
+import { getAuth, sendPasswordResetEmail, updateEmail } from "firebase/auth";
 import { db } from "../firebase";
 
 import NavBar from './Navbar';
 
 export default function Profile() {
-	const firstNameRef = useRef<HTMLInputElement>(null);
-	const lastNameRef = useRef<HTMLInputElement>(null);
-	const emailRef = useRef<HTMLInputElement>(null);
-	const handleResetPassword = function () {
-		const auth = getAuth();
-		if (auth.currentUser) {
-			sendPasswordResetEmail(auth, auth.currentUser.email)		
-			.then(() => {
-		alert("An email has been sent to reset your password! Make sure to save your password somewhere so you can use it later!");
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-		const errorMessage = error.message;
-		alert(error)
-    // ..
-	});
-	updateEmail(auth.currentUser, emailRef.current.value).then(() => {
-		// Email updated!
-		// ...
-	}).catch((error) => {
-		const errorMessage = error.message;
-		alert(error)
-		// ...
-	});
-	
-		}
+  const firstNameRef = useRef<HTMLInputElement>(null);
+  const lastNameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const handleResetPassword = function () {
+    const auth = getAuth();
+    if (auth.currentUser) {
+      sendPasswordResetEmail(auth, auth.currentUser.email)
+        .then(() => {
+          alert("An email has been sent to reset your password! Make sure to save your password somewhere so you can use it later!");
+        })
+        .catch((error) => {
+          // const errorCode = error.code;
+          const errorMessage = error.message;
+          alert(errorMessage)
+        });
+      updateEmail(auth.currentUser, emailRef.current.value).then(() => {
+        // Email updated!
+      }).catch((error) => {
+        const errorMessage = error.message;
+        alert(errorMessage)
+      });
 
-	}
+    }
 
-	const saveInformation = function () {
-		const userUid = auth.currentUser.uid;
-		const userRef = ref(db, 'users/' + userUid);
-		update(userRef, {
-			firstName: firstNameRef.current.value,
-			lastName: lastNameRef.current.value,
-			email: emailRef.current.value
-	}).catch((error) => {
-			alert("Hmmm....There was an error updating your information.")
-	});
-	}
+  }
+
+  const saveInformation = function () {
+    const userUid = auth.currentUser.uid;
+    const userRef = ref(db, 'users/' + userUid);
+    update(userRef, {
+      firstName: firstNameRef.current.value,
+      lastName: lastNameRef.current.value,
+      email: emailRef.current.value
+    }).catch((error) => {
+      alert("Hmmm....There was an error updating your information.")
+    });
+  }
   return (
     <Box sx={{ flex: 1, width: '100%' }}>
-      <NavBar/>
-       
+      <NavBar />
+
       <Stack
         spacing={4}
         sx={{
@@ -87,42 +83,42 @@ export default function Profile() {
           <Stack
             direction="column"
           >
-           <Stack spacing={2} sx={{ flexGrow: 1 }}>
+            <Stack spacing={2} sx={{ flexGrow: 1 }}>
               <Stack spacing={1}>
                 <FormControl sx={{ flexGrow: 1 }}>
                   <FormLabel>First Name</FormLabel>
                   <Input
                     size="sm"
-										type="text"
-										name="firstName"
+                    type="text"
+                    name="firstName"
                     startDecorator={<DriveFileRenameOutlineIcon />}
-										sx={{ flexGrow: 1 }}
-										slotProps={{
-											input: {
-												ref: firstNameRef
-											}
-										}}
+                    sx={{ flexGrow: 1 }}
+                    slotProps={{
+                      input: {
+                        ref: firstNameRef
+                      }
+                    }}
                   />
-								</FormControl>
+                </FormControl>
               </Stack>
             </Stack>
-					<Stack spacing={2} sx={{ flexGrow: 1 }}>
+            <Stack spacing={2} sx={{ flexGrow: 1 }}>
               <Stack spacing={1}>
                 <FormControl sx={{ flexGrow: 1 }}>
                   <FormLabel>Last Name</FormLabel>
                   <Input
                     size="sm"
-										type="text"
-										name="lastName"
+                    type="text"
+                    name="lastName"
                     startDecorator={<DriveFileRenameOutlineIcon />}
-										sx={{ flexGrow: 1 }}
-										slotProps={{
-											input: {
-												ref: lastNameRef
-											}
-										}}
+                    sx={{ flexGrow: 1 }}
+                    slotProps={{
+                      input: {
+                        ref: lastNameRef
+                      }
+                    }}
                   />
-								</FormControl>
+                </FormControl>
               </Stack>
             </Stack>
             <Stack spacing={2} sx={{ flexGrow: 1 }}>
@@ -133,18 +129,18 @@ export default function Profile() {
                     size="sm"
                     type="email"
                     startDecorator={<EmailRoundedIcon />}
-										sx={{ flexGrow: 1 }}
-										slotProps={{
-											input: {
-												ref: emailRef
-											}
-										}}
+                    sx={{ flexGrow: 1 }}
+                    slotProps={{
+                      input: {
+                        ref: emailRef
+                      }
+                    }}
                   />
-								</FormControl>
+                </FormControl>
               </Stack>
             </Stack>
-					</Stack>
-					
+          </Stack>
+
           <CardOverflow sx={{ borderTop: '1px solid', borderColor: 'divider' }}>
             <CardActions sx={{ alignSelf: 'flex-end', pt: 2 }}>
               <Button size="sm" variant="outlined" color="neutral" onClick={handleResetPassword}>
