@@ -253,7 +253,7 @@ export default function SeatingChart() {
         const user = auth.currentUser;
 
         if (user) {
-          alert("going to delete...");
+          // alert("going to delete...");
           const uid = user.uid;
           // const subcollectionRef = collection(db, "users", uid, className);
           try { 
@@ -274,7 +274,7 @@ export default function SeatingChart() {
         });
           await setClassNames(updatedClasses || []);
           setClassName(classNames[0]);
-          alert("className : " + className);
+          // alert("className : " + className);
           setSelectedTab(0);
           // updateInfoForCurrentClass();
 
@@ -310,7 +310,7 @@ export default function SeatingChart() {
           // alert("classes : " + docData.classes);
           await setClassNames((docData.classes || []).filter(cls => cls.trim() !== ''));
           setClassName(classNames[0]);
-          alert("className : " + className);
+          // alert("className : " + className);
           setSelectedTab(0);
           // updateInfoForCurrentClass();
 
@@ -824,7 +824,7 @@ export default function SeatingChart() {
           alert("oops! it seemed like we couldn't find records of this class :(")
         }
         if (!updatedClasses.includes(newClassName)) {
-          alert("new class name : " + newClassName);
+          // alert("new class name : " + newClassName);
           updatedClasses.push(newClassName);
           updatedClasses = classNames.filter(cls => cls.trim() !== '');
           await updateDoc(classesDocRef, {
@@ -836,7 +836,7 @@ export default function SeatingChart() {
       }
 
     }
-    alert("saved!");
+    alert("Saved!");
   }
 
   const saveEmpty = async (className: string): Promise<void> => {
@@ -895,7 +895,7 @@ export default function SeatingChart() {
           const docData = docSnap.data();
           updatedClasses = docData.classes;
         } else {
-          alert("oops! it seemed like we couldn't find records of this class :( iygk")
+          alert("oops! it seemed like we couldn't find records of this class :(")
         }
         updatedClasses.push(newClassName);
         await updateDoc(classesDocRef, {
