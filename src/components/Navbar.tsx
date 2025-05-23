@@ -35,7 +35,7 @@ export default function NavBar() {
     navigate('/');
   }
   return (
-    <Box sx={{ minHeight: "20px" }}>
+    <Box sx={{ minHeight: "20px", width:"100%" }}>
       <List
         role="menubar"
         orientation="horizontal"

@@ -203,8 +203,8 @@ export default function SeatingChart() {
   const [objToAdd, setObjToAdd] = useState("placeholder");
   const [objWidth, setObjWidth] = useState(50);
   const [objHeight, setObjHeight] = useState(50);
-  const [objX, setObjX] = useState(100);
-  const [objY, setObjY] = useState(100);
+  const [objX, setObjX] = useState(50);
+  const [objY, setObjY] = useState(50);
   const [objShapeToAdd, setObjShapeToAdd] = useState("rectangle");
   const [objLabel, setObjLabel] = useState("Label");
   const [objAccomidations, setObjAccomidations] = useState([]);
@@ -219,11 +219,12 @@ export default function SeatingChart() {
   const [selectedTab, setSelectedTab] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [newClassName, setNewClassName] = useState('');
+  const [copyIndex, setCopyIndex] = React.useState<number>(null);
   // const [newItem, setNewItem] = useState('');
   // const [openItemModal, setOpenItemModal] = useState(false);
   // const [classToCopy, setClassToCopy] = useState(-1);//index2
 
-  const handleAddClass = () => {
+  const handleAddClass = async () => {
     if (newClassName.trim() !== '') {
       // const newClass = {
       //   id: classNames.length + 1,
@@ -233,18 +234,138 @@ export default function SeatingChart() {
         alert("Whoops! That name is already in the list of classes!");
         return;
       }
-
-      setClassNames([...classNames, newClassName.trim()]);
-      saveEmpty(newClassName);
+      let updatedNames = [...classNames, newClassName.trim()];
+      setClassNames(updatedNames);
+      await saveEmpty(newClassName);
       //if duplicate
       setNewClassName('');
       setOpenModal(false);
-      // Select the new tab
-      setSelectedTab(classNames.length - 1);
+      const db = getFirestore(app);
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        const uid = user.uid;
+        const infoDocRef = doc(db, "users", uid, "classList", "info");
+        const docSnap = await getDoc(infoDocRef);
+        if (docSnap.exists()) {
+          const docData = docSnap.data();
+          let classesArr = docData.classes.filter(classOfArr => classOfArr.trim() !== '');
+          setClassNames(classesArr);
+
+          setSelectedTab(classesArr.length - 1);
+          setClassName(classesArr[classesArr.length - 1]);
+
+          updateInfoForCurrentClass();
+        }
+      }
     }
   };
 
+  const handleCopyClass = async (index) => {
+    // alert("index : " + index);
+    let classNameToUse = newClassName.trim();
+    if (classNameToUse.trim() !== '') {
+      // const newClass = {
+      //   id: classNames.length + 1,
+      //   name: newClassName,
+      // };
+      if (classNames.includes(classNameToUse)) {
+        alert("Whoops! That name is already in the list of classes!");
+        return;
+      }
+
+      setClassNames([...classNames, classNameToUse]);
+      // saveEmpty(newClassName); going to save anyway later
+      //if duplicate
+      // setNewClassName(''); //this was causing issues since it was clearing it
+      // setOpenModal(false);
+
+
+      const db = getFirestore(app);
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (user) {
+        // alert("going to delete...");
+        const uid = user.uid;
+        let classToCopy = classNames[index];
+        // const subcollectionRef = collection(db, "users", uid, className);
+        try {
+          // const res = await subcollectionRef.doc('info').delete();
+
+          // alert("class to copy : " + classToCopy);
+          const docRef = doc(db, "users", uid, classToCopy, "info");
+          const classToCopySnap = await getDoc(docRef);
+
+          // const newDocRef = doc(db, "users", uid, newClassName, "info");
+          // await deleteDoc(docRef);    
+
+          const infoDocRef = doc(db, "users", uid, "classList", "info");
+          const classListSnap = await getDoc(infoDocRef);
+
+          if (classToCopySnap.exists()) {
+            // alert("it exists!");
+
+            let docData = classToCopySnap.data();
+            // alert("data : " + JSON.stringify(docData, null, 2));
+            // alert("className : " + className);
+
+            await setDoc(doc(db, "users", uid, classNameToUse, "info"), {
+              createdAt: new Date(),
+              notes: docData.notes || "",
+              desks: docData.desks || [],
+              fontSize: docData.fontSize || 12,
+              items: docData.items || [],
+              setUp: {
+                width: docData.setUp.width || 500,
+                height: docData.setUp.height || 400,
+              }
+            });
+          } else {
+            alert("oops! it seemed like we couldn't find records of this class :( 789")
+          }
+
+          if (classListSnap.exists()) {
+            const docData = classListSnap.data();
+            const classes = Array.isArray(docData.classes) ? docData.classes : [];
+            const updatedClasses = [...classes, classNameToUse]; //push returns length
+            // alert("classes : " + docData.classes);
+            await updateDoc(infoDocRef, {
+              classes: updatedClasses,
+            });
+            setClassNames(updatedClasses);
+            // setClassName(classNames[0]);
+            updateClassList();
+            setSelectedTab(updatedClasses.length - 1);
+            setClassName(classNameToUse);
+            updateInfoForCurrentClass();
+
+            // alert("className : " + className);
+            // alert("setting to 0; delete");
+            // setSelectedTab(0);
+            // updateInfoForCurrentClass();
+
+          } else {
+            alert("oops! it seemed like we couldn't find records of this class :( 456")
+          }
+        } catch (error) {
+          alert("Error getting document:" + (error as Error).message);
+        }
+
+
+      }
+      // Select the new tab
+      // alert("setting to : " + classNames.length - 1);
+
+
+    }
+    setNewClassName('');
+    setOpenModal(false);
+    setCopyIndex(null);
+  };
+
   const handleDeleteClass = async (index) => {
+    // alert("index : " + index);
     let confirm = window.confirm("Are you sure you want to delete the class?");
     if (confirm) {
       if (classNames.length > 1) {
@@ -256,35 +377,42 @@ export default function SeatingChart() {
           // alert("going to delete...");
           const uid = user.uid;
           // const subcollectionRef = collection(db, "users", uid, className);
-          try { 
+          try {
             // const res = await subcollectionRef.doc('info').delete();
-            const docRef = doc(db, "users", uid, className, "info");
-            await deleteDoc(docRef);    
+            let classToDelete = classNames[index];
+            // alert("about to delete : " + classToDelete);
+            const docRef = doc(db, "users", uid, classToDelete, "info");
+            await deleteDoc(docRef);
 
             const infoDocRef = doc(db, "users", uid, "classList", "info");
             const docSnap = await getDoc(infoDocRef);
 
-        if (docSnap.exists()) {
-          const docData = docSnap.data();
-          const classes = docData.classes;
-          const updatedClasses = classes.filter(item => item !== className)
-          // alert("classes : " + docData.classes);
-          await updateDoc(infoDocRef, {
-          classes: updatedClasses,
-        });
-          await setClassNames(updatedClasses || []);
-          setClassName(classNames[0]);
-          // alert("className : " + className);
-          setSelectedTab(0);
-          // updateInfoForCurrentClass();
+            if (docSnap.exists()) {
+              const docData = docSnap.data();
+              const classes = docData.classes;
+              const updatedClasses = classes.filter(item => item !== classToDelete)
+              // alert("classes : " + docData.classes);
+              await updateDoc(infoDocRef, {
+                classes: updatedClasses,
+              });
+              await setClassNames(updatedClasses || []);
+              updateClassList();
+              setSelectedTab(updatedClasses.length - 1);
+              setClassName(updatedClasses[updatedClasses.length - 1]);
+              updateInfoForCurrentClass();
+              // setClassName(classNames[0]);
+              // alert("className : " + className);
+              // alert("setting to 0; delete");
+              // setSelectedTab(0);
+              // updateInfoForCurrentClass();
 
-        } else {
-          alert("oops! it seemed like we couldn't find records of this class :( fewiauk")
-        }
+            } else {
+              alert("oops! it seemed like we couldn't find records of this class :( 456")
+            }
           } catch (error) {
             alert("Error getting document:" + (error as Error).message);
           }
-          
+
 
         }
 
@@ -307,15 +435,17 @@ export default function SeatingChart() {
 
         if (docSnap.exists()) {
           const docData = docSnap.data();
-          // alert("classes : " + docData.classes);
-          await setClassNames((docData.classes || []).filter(cls => cls.trim() !== ''));
-          setClassName(classNames[0]);
-          // alert("className : " + className);
+          let classesArr = docData.classes.filter(cls => cls.trim() !== '');
+
+          setClassNames(classesArr);
+          setClassName(classesArr[0]);
+          // alert("classesdas : " + JSON.stringify(classesArr[0], null, 2));
+
           setSelectedTab(0);
-          // updateInfoForCurrentClass();
+          updateInfoForCurrentClass();
 
         } else {
-          alert("oops! it seemed like we couldn't find records of this class :( fewiauk")
+          alert("oops! it seemed like we couldn't find records of this class :( 123")
         }
       } catch (error) {
         console.error("Error getting document 1:", error.message);
@@ -324,7 +454,7 @@ export default function SeatingChart() {
   }
 
 
-  const updateInfoForCurrentClass =  useCallback(async () => {
+  const updateInfoForCurrentClass = useCallback(async () => {
     const db = getFirestore(app);
     const auth = getAuth();
     const user = auth.currentUser;
@@ -332,17 +462,15 @@ export default function SeatingChart() {
     if (user && className && className !== "") {
       const uid = user.uid;
 
-
+      const newName = className.replace(/[^a-zA-Z0-9_]/g, '_');
 
       try {
-        const infoDocRef = doc(db, "users", uid, className, "info");
+        const infoDocRef = doc(db, "users", uid, newName, "info");
         const docSnap = await getDoc(infoDocRef);
 
         if (docSnap.exists()) {
 
           const docData = docSnap.data();
-          // alert("data : " + JSON.stringify(docData, null, 2));
-          // alert("className : " + className);
           setNotes(docData.notes || "");
           // setDesks(docData.desks || []);
           let serializedDesks = Array.isArray(docData.desks) ? docData.desks : [];
@@ -366,15 +494,16 @@ export default function SeatingChart() {
           setHeight(docData.setUp.height || 400);
           setNotes(docData.notes || "");
         } else {
-          alert("oops! it seemed like we couldn't find records of this class :( iuerhksjd")
+          console.log("Hmm...couldn't find some records (error 1). This may or may not indicate an issue.")
         }
       } catch (error) {
         alert("Error getting document:" + (error as Error).message);
       }
     } else {
-      alert("Please select a class/user to view its details.");
+      console.log("Please select a class/user to view its details.");
     }
   }, [className]);
+
 
   useEffect(() => {
     const update = async () => {
@@ -389,7 +518,9 @@ export default function SeatingChart() {
     }
     update()
       .catch(console.error);
-  })
+    // comment below to ignore the dependency warning!
+    // eslint-disable-next-line
+  }, [])
 
   useEffect(() => {
     const update = async () => {
@@ -401,6 +532,41 @@ export default function SeatingChart() {
     update()
       .catch(console.error);
   }, [className, updateInfoForCurrentClass]);
+
+
+  useEffect(() => {
+    const update = async () => {
+
+      setNotes("");;
+      setObjAccomidations([]);
+      setObjLabel("Label");
+      setObjX(50);
+      setObjY(50);
+      setObjHeight(50);
+      setObjWidth(50);
+      setObjToAdd("placeholder");
+      // setFontSize("12");
+      setSwapModeOn(false);
+      setOpenAdvancedSettings(false);
+      setOpenNotes(false);
+      setCurrItem(undefined);
+      setCurrDesk(undefined);
+      setDeskToSwap(null);
+      setNumbersModeOn(false);
+      setColorToSet("#000000");
+      setNoteBoxModeOn(false);
+      // setItemHeight(400);
+      // setItemWidth(500);
+      // setDesks([]);
+      // setItems([]);
+
+      // setOpen(false);
+
+
+    }
+    update()
+      .catch(console.error);
+  }, [selectedTab]);
 
   useEffect((e: any) => {
     console.log("running");
@@ -583,22 +749,17 @@ export default function SeatingChart() {
   };
 
   const addItem = () => {
-    console.log("adding item");
-    console.log("Adding item with properties:", {
-      shape: objShapeToAdd,
-      label: objLabel,
-      x: objX,
-      y: objY,
-      width: objWidth,
-      height: objHeight
-    });
+    // console.log("adding item");
+    // console.log("Adding item with properties:", {
+    //   shape: objShapeToAdd,
+    //   label: objLabel,
+    //   x: objX,
+    //   y: objY,
+    //   width: objWidth,
+    //   height: objHeight
+    // });
 
-    setItems((prevItems: Item[]) =>
-      prevItems.map((item, i) => {
-        let itemCopy = new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
-        return itemCopy;
-      })
-    );
+
 
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
@@ -607,14 +768,34 @@ export default function SeatingChart() {
       })
     );
 
-    setItems(items => [...items, new Item(true, uuidv4(),
-      objShapeToAdd,
-      objLabel,
-      objX,
-      objY,
-      objWidth,
-      objHeight, "#000000")]);
-    console.log("new items: " + JSON.stringify(items, null, 2));
+    // setItems(prevItems => [...prevItems.map((item, i) => {
+    //     let itemCopy = new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
+    //     return itemCopy;
+    //   }), new Item(true, uuidv4(),
+    //   objShapeToAdd,
+    //   objLabel,
+    //   objX,
+    //   objY,
+    //   objWidth,
+    //   objHeight, "#000000")]);
+    // console.log("new items: " + JSON.stringify(items, null, 2));
+
+    setItems((prevItems: Item[]) => [
+      ...prevItems.map(item =>
+        new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
+      ),
+      new Item(
+        true,
+        uuidv4(),
+        objShapeToAdd,
+        objLabel,
+        objX,
+        objY,
+        objWidth,
+        objHeight,
+        "#000000"
+      )
+    ]);
   };
 
   const addDesk = () => {
@@ -627,19 +808,16 @@ export default function SeatingChart() {
       accomidations = [];
     }
 
-    setDesks((prevDesks: Desk[]) =>
-      prevDesks.map((desk, i) => {
-        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations());
-        return deskCopy;
-      })
-    );
     setItems((prevItems: Item[]) =>
       prevItems.map((item, i) => {
         let itemCopy = new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
         return itemCopy;
       })
     );
-    setDesks((prevDesks: Desk[]) => [...prevDesks, new Desk(true, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, "#000000", accomidations)]);
+    setDesks((prevDesks: Desk[]) => [...prevDesks.map((desk, i) => {
+      let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations());
+      return deskCopy;
+    }), new Desk(true, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, "#000000", accomidations)]);
     console.log("Updated desks:", desks);
 
   };
@@ -821,7 +999,7 @@ export default function SeatingChart() {
           const docData = docSnap.data();
           updatedClasses = docData.classes;
         } else {
-          alert("oops! it seemed like we couldn't find records of this class :(")
+          alert("oops! it seemed like we couldn't find records of this class :( 1011")
         }
         if (!updatedClasses.includes(newClassName)) {
           // alert("new class name : " + newClassName);
@@ -851,9 +1029,9 @@ export default function SeatingChart() {
       // if (className) {
       // alert
       // IMPORTANT: Define newClassName properly
-        const trimmedClassName = className.trim();
+      const trimmedClassName = className.trim();
 
-  if (!trimmedClassName) {
+      if (!trimmedClassName) {
         alert("Invalid class name.");
         return;
       }
@@ -1015,9 +1193,9 @@ export default function SeatingChart() {
 
   return (
     <Box sx={{
-      width: "100%",
-      height: "100%",
-      maxWidth: "100vw",
+      width: "100vw",
+      height: "100vh",
+      // maxWidth: "100vw",
     }}>
       <Navbar />
       <Box>
@@ -1026,7 +1204,7 @@ export default function SeatingChart() {
             <Typography level="h3">Class Manager</Typography>
             <Button
               startDecorator={<AddIcon />}
-              onClick={() => setOpenModal(true)}
+              onClick={() => { setOpenModal(true); setCopyIndex(null); }}
               color="primary"
             >
               Add Class
@@ -1036,9 +1214,9 @@ export default function SeatingChart() {
           {classNames.length > 0 ? (
             <Tabs
               value={selectedTab}
-              onChange={(event, value) => {
-                save(); setSelectedTab(value); const newClassName = classNames[value || 0];
-                setClassName(newClassName);
+              onChange={async (event, value) => {
+                await save(); setSelectedTab(value); let classesArr = classNames.filter(cls => cls.trim() !== ''); let newClassName = classesArr[value || 0];
+                setClassName(newClassName); updateInfoForCurrentClass();
               }}
               sx={{ borderRadius: 'md' }}
             >
@@ -1066,8 +1244,10 @@ export default function SeatingChart() {
                         onClick={(e) => {
                           e.stopPropagation();
                           setOpenModal(true);
-                          handleAddClass();
-                          // handleCopyClass(index); // TODO finish implementing copy
+                          setNewClassName('');
+                          // handleAddClass();
+                          //  handleCopyClass(index);
+                          setCopyIndex(index);
                         }}
                         sx={{ fontSize: "15px" }}
                       >
@@ -1116,7 +1296,11 @@ export default function SeatingChart() {
               <Button variant="plain" color="neutral" onClick={() => setOpenModal(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleAddClass}>Add</Button>
+              <Button onClick={() => {
+                if (copyIndex == null) { handleAddClass() } else {
+                  handleCopyClass(copyIndex);
+                }
+              }}>Add</Button>
             </Box>
           </ModalDialog>
         </Modal>
@@ -1166,12 +1350,17 @@ export default function SeatingChart() {
                   bounds="parent"
                   style={{
                     display: "flex",
+                    textWrap: "wrap",
                     alignItems: "center",
                     justifyContent: "center",
                     textAlign: "center",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "clip",
+                    //        textAlign: "center",
+                    // whiteSpace: "nowrap",
+                    // overflow: "hidden",
+                    // textOverflow: "clip",
                     paddingTop: "5px",
                     border: element.getActive() === true ? '1px solid blue' : `1px solid ${element.getColorValue()}`,
                     background: "#d9d9d9",
@@ -1243,7 +1432,7 @@ export default function SeatingChart() {
 
                   }
                   }
-                  onResizeStop={(e, direction, ref, delta, position) => {
+                  onResize={(e, direction, ref, delta, position) => {
                     setItemData(element);
                     let color = element.getColorValue();
                     if (colorModeOn) {
@@ -1297,7 +1486,7 @@ export default function SeatingChart() {
                       flexDirection: "column", // Stack children vertically
                       justifyContent: noteBoxModeOn ? "flex-start" : 'center',
 
-                      textAlign: "left",
+                      textAlign: "center",
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "clip",
@@ -1369,7 +1558,7 @@ export default function SeatingChart() {
                       setObjWidth(element.getWidthValue());
                       setObjHeight(element.getHeightValue());
                     }}
-                    onResizeStop={(e, direction, ref, delta, position) => {
+                    onResize={(e, direction, ref, delta, position) => {
 
                       let color = element.getColorValue();
                       if (colorModeOn) {
@@ -1433,11 +1622,18 @@ export default function SeatingChart() {
               })}
             </Box>
           </Box>
+          {/* <Box sx={{height:"100%", display: "flex",
+    justifyContent: "flex-end",
+        alignItems: "flex-start",}}> */}
           <Box
 
             sx={{
+              flex: 1,
               minWidth: "400px",
+              // minHeight: "100%",
+              // maxHeight:"100vh",
               height: "100%",
+              overflowY: 'auto',
               backgroundColor: "rgb(235,235,235)",
               justifyContent: "center",
               textAlign: "center",
@@ -1589,11 +1785,12 @@ export default function SeatingChart() {
                     <MenuItem value={"#000000"}>Black</MenuItem>
                     {/* <MenuItem value={"#0000FF"}>Blue</MenuItem> */}
                     <MenuItem value={"#FF0000"}>Red</MenuItem>
-                    <MenuItem value={"#FFA500"}>Orange</MenuItem>
-                    <MenuItem value={"#00FF00"}>Green</MenuItem>
-                    <MenuItem value={"#FFC0CB"}>Pink</MenuItem>
-                    <MenuItem value={"#800080"}>Purple</MenuItem>
-                    <MenuItem value={"#964B00"}>Brown</MenuItem>
+                    <MenuItem value={"#DB6600"}>Orange</MenuItem>
+                    <MenuItem value={"#FFED00"}>Yellow</MenuItem>
+                    <MenuItem value={"#76B80D"}>Green</MenuItem>
+                    <MenuItem value={"#007CB5"}>Blue</MenuItem>
+                    <MenuItem value={"#873B9C"}>Purple</MenuItem>
+
                   </Select>
                 </Box>
                 <Typography sx={{ margin: "5px" }}>Width : </Typography>
@@ -1853,13 +2050,13 @@ export default function SeatingChart() {
                         checked={numbersModeOn}
                         onChange={(event) => { setNumbersModeOn(event?.target.checked) }}
                       />
-                     
+
                     </Box>
                   </Box>
 
                   <Box sx={{ display: "flex", justifyContent: "center", width: "100%", marginTop: 2, paddingRight: "15px", paddingLeft: "15px" }}>
                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
-                    <Typography>Color</Typography>
+                      <Typography>Color</Typography>
                       <Switch
                         checked={colorModeOn}
                         onChange={(event) => { setColorModeOn(event?.target.checked) }}
@@ -1873,7 +2070,9 @@ export default function SeatingChart() {
                   </Box>
 
                 </Box>
+
               }
+              {/* </Box> */}
             </Box>
           </Box>
           {/* .slice().reverse() */}
