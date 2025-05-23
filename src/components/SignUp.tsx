@@ -8,10 +8,12 @@ import Typography from '@mui/joy/Typography';
 import { Link } from 'react-router-dom';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
+import { app } from "../firebase";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
 import Input from '@mui/joy/Input';
 import Button from '@mui/joy/Button';
 import Box from '@mui/joy/Box';
-import { getDatabase, ref, set } from "firebase/database";
+// import { getDatabase, ref, set } from "firebase/database";
 import { useAuth } from "../contexts/AuthContext";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
@@ -42,140 +44,181 @@ export default function SignUp() {
       await signup(emailRef.current.value, passwordRef.current.value);
       const auth = getAuth();
       await signInWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value);
-      const userUid = auth.currentUser.uid;
-      const db = getDatabase();
-      await set(ref(db, 'users/' + userUid), {
-        firstName: firstNameRef.current.value,
-        lastName: lastNameRef.current.value,
-        email: emailRef.current.value,
-        screen: {},
-        desks: [],
-        items: []
+      // const userUid = auth.currentUser.uid;
+      const db = getFirestore(app);
+      // const auth = getAuth();
 
-      });
+      const user = auth.currentUser;
+
+      if (user) {
+
+        const uid = user.uid;
+        // try {
+        const itemsDocRef = doc(db, "users", uid, "Default", "info");
+        await setDoc(itemsDocRef, {
+          createdAt: new Date(),
+          notes: "",
+          desks: {},
+          fontSize: 12,
+          items: {},
+          setUp: {
+            width: 500,
+            height: 400,
+          }
+        });
+
+        const classesDocRef = doc(db, "users", uid, "classList", "info");
+        // const docSnap = await getDoc(classesDocRef);
+        let updatedClasses = ["Default"];
+        // if (docSnap.exists()) {
+        //   const docData = docSnap.data();
+        //   updatedClasses = docData.classes;
+        // } else {
+        //   updated
+        //   alert("oops! we couldn't find a classList")
+        // }
+        // updatedClasses.push(newClassName);
+        await setDoc(classesDocRef, {
+          classes: updatedClasses,
+        });
+        // } catch (error) {
+        //   alert("Error:" + error)
+        // }
+
+      }
+    
+      // await set(ref(db, 'users/' + userUid), {
+      //   firstName: firstNameRef.current.value,
+      //   lastName: lastNameRef.current.value,
+      //   email: emailRef.current.value,
+      //   screen: {},
+      //   desks: [],
+      //   items: []
+
+      // });
       navigate("/");
-      alert("You have successfully signed up and created an account! Make sure to save your login credentials somewhere so you don't forget them!");
-    } catch(error){
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      setError(errorMessage);
-    }
-    setLoading(false);
-
+    alert("You have successfully signed up and created an account! Make sure to save your login credentials somewhere so you don't forget them!");
+  } catch (error) {
+    // const errorCode = error.code;
+    const errorMessage = error.message;
+    setError(errorMessage);
   }
-  return (
-    <Box>
-      <Navbar />
+  setLoading(false);
 
-      <Box sx={{
-        height: "100%",
-        width: "100%",
-        textAlign: "center",
-        alignItems: "center",
-        justifyContent: "center",
-        display: "flex"
-      }}>
-        <CssBaseline />
-        <Sheet
-          sx={{
-            width: 300,
-            mx: 'auto', // margin left & right
-            my: 4, // margin top & bottom
-            py: 3, // padding top & bottom
-            px: 2, // padding left & right
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            borderRadius: 'sm',
-            boxShadow: 'md',
-          }}
-          variant="outlined"
-        >
-          <div>
-            {error !== "" && <Alert color="danger">{error}</Alert>}
+}
+return (
+  <Box>
+    <Navbar />
 
-            <Typography level="h4" component="h1">
-              <b>Welcome!</b>
-            </Typography>
-            <Typography level="body-sm">Sign in to continue.</Typography>
-          </div>
-          <FormControl>
-            <FormLabel>Email</FormLabel>
-            <Input
-              // html input attribute
-              name="email"
-              type="email"
-              placeholder=""
-              slotProps={{
-                input: {
-                  ref: emailRef
-                }
-              }}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>First Name</FormLabel>
-            <Input
-              // html input attribute
-              name="firstName"
-              type="text"
-              slotProps={{
-                input: {
-                  ref: firstNameRef
-                }
-              }}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Last Name</FormLabel>
-            <Input
-              // html input attribute
-              name="lastName"
-              type="text"
-              slotProps={{
-                input: {
-                  ref: lastNameRef
-                }
-              }}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Password</FormLabel>
-            <Input
-              // html input attribute
-              name="password"
-              type="password"
-              placeholder="password"
-              slotProps={{
-                input: {
-                  ref: passwordRef
-                }
-              }}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Password Confirmation</FormLabel>
-            <Input
-              // html input attribute
-              name="passwordConfirmation"
-              type="password"
-              placeholder="password confirmation"
-              slotProps={{
-                input: {
-                  ref: passwordConfirmationRef
-                }
-              }}
-            />
-          </FormControl>
-          <Button sx={{ mt: 1 /* margin top */ }} onClick={handleSubmit} disabled={loading}>Sign Up</Button>
-          <Typography
-            endDecorator={<Link to='/login'>Log in</Link>}
-            sx={{ fontSize: 'sm', alignSelf: 'center' }}
-          >
-            Already have an account?
+    <Box sx={{
+      height: "100%",
+      width: "100%",
+      textAlign: "center",
+      alignItems: "center",
+      justifyContent: "center",
+      display: "flex"
+    }}>
+      <CssBaseline />
+      <Sheet
+        sx={{
+          width: 300,
+          mx: 'auto', // margin left & right
+          my: 4, // margin top & bottom
+          py: 3, // padding top & bottom
+          px: 2, // padding left & right
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          borderRadius: 'sm',
+          boxShadow: 'md',
+        }}
+        variant="outlined"
+      >
+        <div>
+          {error !== "" && <Alert color="danger">{error}</Alert>}
+
+          <Typography level="h4" component="h1">
+            <b>Welcome!</b>
           </Typography>
-        </Sheet>
-      </Box>
+          <Typography level="body-sm">Sign in to continue.</Typography>
+        </div>
+        <FormControl>
+          <FormLabel>Email</FormLabel>
+          <Input
+            // html input attribute
+            name="email"
+            type="email"
+            placeholder=""
+            slotProps={{
+              input: {
+                ref: emailRef
+              }
+            }}
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel>First Name</FormLabel>
+          <Input
+            // html input attribute
+            name="firstName"
+            type="text"
+            slotProps={{
+              input: {
+                ref: firstNameRef
+              }
+            }}
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Last Name</FormLabel>
+          <Input
+            // html input attribute
+            name="lastName"
+            type="text"
+            slotProps={{
+              input: {
+                ref: lastNameRef
+              }
+            }}
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Password</FormLabel>
+          <Input
+            // html input attribute
+            name="password"
+            type="password"
+            placeholder="password"
+            slotProps={{
+              input: {
+                ref: passwordRef
+              }
+            }}
+          />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Password Confirmation</FormLabel>
+          <Input
+            // html input attribute
+            name="passwordConfirmation"
+            type="password"
+            placeholder="password confirmation"
+            slotProps={{
+              input: {
+                ref: passwordConfirmationRef
+              }
+            }}
+          />
+        </FormControl>
+        <Button sx={{ mt: 1 /* margin top */ }} onClick={handleSubmit} disabled={loading}>Sign Up</Button>
+        <Typography
+          endDecorator={<Link to='/login'>Log in</Link>}
+          sx={{ fontSize: 'sm', alignSelf: 'center' }}
+        >
+          Already have an account?
+        </Typography>
+      </Sheet>
     </Box>
-  );
+  </Box>
+);
 }

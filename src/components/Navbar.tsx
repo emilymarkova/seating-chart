@@ -12,7 +12,7 @@ import { getAuth, signOut } from "firebase/auth";
 // import HomeRounded from '@mui/icons-material/HomeRounded';
 // import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import Person from '@mui/icons-material/Person';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+// import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import BackupTableIcon from '@mui/icons-material/BackupTable';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 // import IconButton from '@mui/joy/IconButton';
@@ -35,7 +35,7 @@ export default function NavBar() {
     navigate('/');
   }
   return (
-    <Box sx={{ minHeight: "20px" }}>
+    <Box sx={{ minHeight: "20px", width:"100%" }}>
       <List
         role="menubar"
         orientation="horizontal"
@@ -53,7 +53,7 @@ export default function NavBar() {
             // href="#navigation-menu"
             onClick={() => { navigate('/') }}
           >
-           <Typography>Table Map</Typography>
+            <Typography>Table Map</Typography>
           </ListItemButton>
         </ListItem>
         {getAuth().currentUser &&
@@ -66,8 +66,8 @@ export default function NavBar() {
                 <MoreVert />
               </MenuButton>
               <Menu>
-                <MenuItem onClick={() => { navigate('/profile') }}><Person /> Profile</MenuItem>
-                <MenuItem><InfoOutlinedIcon /> Instructions</MenuItem>
+                {/* <MenuItem onClick={() => { navigate('/profile') }}><Person /> Profile</MenuItem> */}
+                {/* <MenuItem><InfoOutlinedIcon /> Instructions</MenuItem> */}
                 <MenuItem onClick={() => { navigate('/seating-chart') }}><BackupTableIcon />Charts</MenuItem>
                 <MenuItem onClick={logOut}><ExitToAppOutlinedIcon /> Logout</MenuItem>
               </Menu>
