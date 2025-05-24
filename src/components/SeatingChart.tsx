@@ -252,10 +252,10 @@ export default function SeatingChart() {
           let classesArr = docData.classes.filter(classOfArr => classOfArr.trim() !== '');
           setClassNames(classesArr);
 
-          setSelectedTab(classesArr.length - 1);
-          setClassName(classesArr[classesArr.length - 1]);
+          // setSelectedTab(classesArr.length - 1);
+          // setClassName(classesArr[classesArr.length - 1]);
 
-          updateInfoForCurrentClass();
+          // updateInfoForCurrentClass();
         }
       }
     }
@@ -336,9 +336,10 @@ export default function SeatingChart() {
             setClassNames(updatedClasses);
             // setClassName(classNames[0]);
             updateClassList();
-            setSelectedTab(updatedClasses.length - 1);
-            setClassName(classNameToUse);
-            updateInfoForCurrentClass();
+
+            // setSelectedTab(updatedClasses.length - 1);
+            // setClassName(classNameToUse);
+            // updateInfoForCurrentClass();
 
             // alert("className : " + className);
             // alert("setting to 0; delete");
@@ -390,16 +391,35 @@ export default function SeatingChart() {
             if (docSnap.exists()) {
               const docData = docSnap.data();
               const classes = docData.classes;
-              const updatedClasses = classes.filter(item => item !== classToDelete)
+              const updatedClasses = classes.filter(item => item !== classToDelete && item.trim() !=="")
+              
               // alert("classes : " + docData.classes);
               await updateDoc(infoDocRef, {
                 classes: updatedClasses,
               });
-              await setClassNames(updatedClasses || []);
-              updateClassList();
-              setSelectedTab(updatedClasses.length - 1);
-              setClassName(updatedClasses[updatedClasses.length - 1]);
-              updateInfoForCurrentClass();
+              await updateClassList();
+              // await setClassNames(updatedClasses || []); // already udpated in update classList
+             
+              // const classesArr = await updateClassList();
+              let indexToSelect = selectedTab;
+              if (selectedTab < index) {
+                //selecting the same thing; leave as is
+              } else if (selectedTab >= index) {
+                indexToSelect = selectedTab - 1;
+              }
+               
+              // if (selectedTab >= classesArr.length) {
+              //   indexToSelect = classesArr.length - 1;
+              // }
+              // alert("index is : " + indexToSelect);
+
+              setSelectedTab(indexToSelect);
+              // alert("classesArr : " + classesArr);
+              // setClassName(classesArr[indexToSelect]);
+              // alert("className : " + className);
+              // updateInfoForCurrentClass();
+              // alert("selected tab is : " + selectedTab);
+              // updateInfoForCurrentClass();
               // setClassName(classNames[0]);
               // alert("className : " + className);
               // alert("setting to 0; delete");
@@ -436,13 +456,13 @@ export default function SeatingChart() {
         if (docSnap.exists()) {
           const docData = docSnap.data();
           let classesArr = docData.classes.filter(cls => cls.trim() !== '');
+        // let safeIndex = Math.max(0, Math.min(index, classesArr.length - 1));
 
-          setClassNames(classesArr);
-          setClassName(classesArr[0]);
-          // alert("classesdas : " + JSON.stringify(classesArr[0], null, 2));
-
-          setSelectedTab(0);
-          updateInfoForCurrentClass();
+          await setClassNames(classesArr);
+          // setSelectedTab(safeIndex);
+          // setClassName(classesArr[safeIndex]);
+          // updateInfoForCurrentClass();
+          return classesArr;
 
         } else {
           alert("oops! it seemed like we couldn't find records of this class :( 123")
@@ -509,7 +529,13 @@ export default function SeatingChart() {
     const update = async () => {
       await updateClassList();
       // setClassName(classNames[0]);
+      // alert("classesdas : " + JSON.stringify(classesArr[0], null, 2));
+
       // setSelectedTab(0);
+      
+      await setClassName(classNames[0]);
+      setSelectedTab(0);
+      updateInfoForCurrentClass();
       // alert('updated');
       // if (className) {
       //   await updateInfoForCurrentClass();
@@ -555,6 +581,9 @@ export default function SeatingChart() {
       setNumbersModeOn(false);
       setColorToSet("#000000");
       setNoteBoxModeOn(false);
+      setClassName(classNames[selectedTab]);
+              // alert("className : " + className);
+      updateInfoForCurrentClass();
       // setItemHeight(400);
       // setItemWidth(500);
       // setDesks([]);
@@ -566,6 +595,7 @@ export default function SeatingChart() {
     }
     update()
       .catch(console.error);
+    // eslint-disable-next-line
   }, [selectedTab]);
 
   useEffect((e: any) => {
@@ -1233,7 +1263,7 @@ export default function SeatingChart() {
                 }
               }}>
                 {classNames.map((cls, index) => (
-                  <Tab key={cls} sx={{
+                  <Tab key={cls} value={index} sx={{
                     minWidth: 'auto',
                     whiteSpace: 'nowrap'
                   }}>
