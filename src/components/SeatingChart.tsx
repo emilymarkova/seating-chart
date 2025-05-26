@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import Slider from "@mui/joy/Slider";
 import Button from "@mui/joy/Button";
 import { app } from "../firebase";
-
+import Snackbar from '@mui/joy/Snackbar';
 import Switch from '@mui/material/Switch';
 // import { doc, setDoc, } from 'firebase/firestore';
 import { getFirestore, getDoc, updateDoc, deleteDoc, setDoc, doc } from "firebase/firestore";
@@ -212,6 +212,7 @@ export default function SeatingChart() {
   const [currDesk, setCurrDesk] = useState<Desk>();
   const [open, setOpen] = React.useState<boolean>(false);
   const [openNotes, setOpenNotes] = React.useState<boolean>(false);
+  const [openSavedAlert, setOpenSavedAlert] = React.useState<boolean>(false);
   const [openAdvancedSettings, setOpenAdvancedSettings] = React.useState<boolean>(false);
   const [openSetUp, setOpenSetUp] = React.useState<boolean>(false);
   const [notes, setNotes] = React.useState("");
@@ -263,7 +264,7 @@ export default function SeatingChart() {
 
   const handleCopyClass = async (index) => {
     // alert("index : " + index);
-    let classNameToUse = newClassName.trim();
+    let classNameToUse = newClassName.trim().replace(/[^a-zA-Z0-9_]/g, '_');
     if (classNameToUse.trim() !== '') {
       // const newClass = {
       //   id: classNames.length + 1,
@@ -391,15 +392,15 @@ export default function SeatingChart() {
             if (docSnap.exists()) {
               const docData = docSnap.data();
               const classes = docData.classes;
-              const updatedClasses = classes.filter(item => item !== classToDelete && item.trim() !=="")
-              
+              const updatedClasses = classes.filter(item => item !== classToDelete && item.trim() !== "")
+
               // alert("classes : " + docData.classes);
               await updateDoc(infoDocRef, {
                 classes: updatedClasses,
               });
               await updateClassList();
               // await setClassNames(updatedClasses || []); // already udpated in update classList
-             
+
               // const classesArr = await updateClassList();
               let indexToSelect = selectedTab;
               if (selectedTab < index) {
@@ -407,7 +408,7 @@ export default function SeatingChart() {
               } else if (selectedTab >= index) {
                 indexToSelect = selectedTab - 1;
               }
-               
+
               // if (selectedTab >= classesArr.length) {
               //   indexToSelect = classesArr.length - 1;
               // }
@@ -456,9 +457,10 @@ export default function SeatingChart() {
         if (docSnap.exists()) {
           const docData = docSnap.data();
           let classesArr = docData.classes.filter(cls => cls.trim() !== '');
-        // let safeIndex = Math.max(0, Math.min(index, classesArr.length - 1));
+          // let safeIndex = Math.max(0, Math.min(index, classesArr.length - 1));
 
           await setClassNames(classesArr);
+          // alert("classesArrwaef : " + JSON.stringify(classesArr, null, 2));
           // setSelectedTab(safeIndex);
           // setClassName(classesArr[safeIndex]);
           // updateInfoForCurrentClass();
@@ -527,15 +529,15 @@ export default function SeatingChart() {
 
   useEffect(() => {
     const update = async () => {
-      await updateClassList();
+      let classesArr = await updateClassList();
       // setClassName(classNames[0]);
       // alert("classesdas : " + JSON.stringify(classesArr[0], null, 2));
 
       // setSelectedTab(0);
-      
-      await setClassName(classNames[0]);
+      // alert("classesArr : " + JSON.stringify(classesArr, null, 2));
+      await setClassName(classesArr[0]);
       setSelectedTab(0);
-      updateInfoForCurrentClass();
+      // updateInfoForCurrentClass(); already done in useEffect
       // alert('updated');
       // if (className) {
       //   await updateInfoForCurrentClass();
@@ -581,8 +583,10 @@ export default function SeatingChart() {
       setNumbersModeOn(false);
       setColorToSet("#000000");
       setNoteBoxModeOn(false);
-      setClassName(classNames[selectedTab]);
-              // alert("className : " + className);
+      if (classNames[selectedTab] && className !== classNames[selectedTab]) {
+        setClassName(classNames[selectedTab]);
+      }
+      // alert("className : " + className);
       updateInfoForCurrentClass();
       // setItemHeight(400);
       // setItemWidth(500);
@@ -704,7 +708,7 @@ export default function SeatingChart() {
     }
     else if (currItem !== undefined) {
       currItem.setShape(e.target.value);
-      const updatedItem = new Item(currItem.getActive(), currItem.getId(), shape, currItem.getName(), currItem.getXValue(), currItem.getYValue(), currItem.getWidthValue(), currItem.getHeightValue()
+      const updatedItem = new Item(currItem.getActive(), currItem.getId(), shape, currItem.getName(), currItem.getXValue(), currItem.getYValue(), currItem.getWidthValue(), currItem.getHeightValue(), currItem.getColorValue()
       );
       setCurrItem(updatedItem);
       setItems((prevItems: Item[]) =>
@@ -1044,7 +1048,8 @@ export default function SeatingChart() {
       }
 
     }
-    alert("Saved!");
+    // alert("Saved!");
+    setOpenSavedAlert(true);
   }
 
   const saveEmpty = async (className: string): Promise<void> => {
@@ -1114,6 +1119,7 @@ export default function SeatingChart() {
       }
 
     }
+    // setOpenSavedAlert(true); no alert since this save is usually hidden
   }
   const setItemData = (item: Item) => {
     setObjToAdd("placeholder");
@@ -1345,6 +1351,15 @@ export default function SeatingChart() {
           padding: "0px",
         }}
       >
+           <Snackbar
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          open={openSavedAlert}
+          onClose={() => { setOpenSavedAlert(false) }}
+          key={'top-left-snackbar'}
+          autoHideDuration={1500}
+        >
+          Saved!
+        </Snackbar>
         <Box
           sx={{
             width: "100%",
@@ -1374,7 +1389,7 @@ export default function SeatingChart() {
               overflow: "visible",
             }}>
 
-              {items.map((element: Item, indexCurr: number) => {
+              {items.slice().reverse().map((element: Item, indexCurr: number) => {
                 return (<Rnd
                   key={element.id}
                   bounds="parent"
@@ -1499,7 +1514,7 @@ export default function SeatingChart() {
                 </Rnd>
                 );
               })}
-              {desks.map((element: Desk, indexCurr: number) => {
+              {desks.slice().reverse().map((element: Desk, indexCurr: number) => {
                 return (
                   <Rnd
                     key={element.id}
@@ -2105,10 +2120,12 @@ export default function SeatingChart() {
               {/* </Box> */}
             </Box>
           </Box>
-          {/* .slice().reverse() */}
+        
 
         </Box>
+     
       </Box>
+
     </Box>
   );
 }

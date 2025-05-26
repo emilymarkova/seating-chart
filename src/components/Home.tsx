@@ -30,11 +30,10 @@ export default function Home() {
 			<Box sx={{ textAlign: "center", alignItems: "center", justifyContent: "center", height: "100%", width: "100%", display: "flex" }}>
 				<Box>
 					<Typography sx={{ fontSize: "30px" }}>
-						Welcome to the {" "}
-						<Typography variant="outlined" color="success">Seating Chart Project</Typography>.
+						<Typography variant="outlined" color="success">Seating Chart Project</Typography>
 					</Typography>
 					{!signedIn &&
-						<Box sx={{ display: "flex", width: "400px", justifyContent: "space-between", alignItems: "center" }}>
+						<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", marginTop: "20px" }}>
 							<Button sx={{ width: "100px" }} onClick={() => { navigate('/login') }}>Log In</Button>
 							<Button sx={{ width: "100px" }} onClick={() => { navigate('/signup') }}>Sign Up</Button>
 						</Box>
