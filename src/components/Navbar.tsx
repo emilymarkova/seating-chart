@@ -3,6 +3,7 @@
 // import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import Typography from '@mui/joy/Typography';
 import Box from '@mui/joy/Box';
+import FlagIcon from '@mui/icons-material/Flag';
 import List from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
 import ListItemButton from '@mui/joy/ListItemButton';
@@ -69,6 +70,7 @@ export default function NavBar() {
                 {/* <MenuItem onClick={() => { navigate('/profile') }}><Person /> Profile</MenuItem> */}
                 {/* <MenuItem><InfoOutlinedIcon /> Instructions</MenuItem> */}
                 <MenuItem onClick={() => { navigate('/seating-chart') }}><BackupTableIcon />Charts</MenuItem>
+                <MenuItem onClick={() => {window.open("https://forms.gle/NSnBUfDfmLXSRt567", "_blank") }}><FlagIcon />Form</MenuItem>
                 <MenuItem onClick={logOut}><ExitToAppOutlinedIcon /> Logout</MenuItem>
               </Menu>
             </Dropdown>
