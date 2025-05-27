@@ -813,22 +813,24 @@ export default function SeatingChart() {
     //   objWidth,
     //   objHeight, "#000000")]);
     // console.log("new items: " + JSON.stringify(items, null, 2));
-
+    const newItem = new Item(
+      true,
+      uuidv4(),
+      objShapeToAdd,
+      objLabel,
+      objX,
+      objY,
+      objWidth,
+      objHeight,
+      "#000000"
+    );
+    setCurrDesk(undefined);
+    setCurrItem(newItem);
     setItems((prevItems: Item[]) => [
       ...prevItems.map(item =>
         new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
       ),
-      new Item(
-        true,
-        uuidv4(),
-        objShapeToAdd,
-        objLabel,
-        objX,
-        objY,
-        objWidth,
-        objHeight,
-        "#000000"
-      )
+     newItem
     ]);
   };
 
@@ -841,7 +843,9 @@ export default function SeatingChart() {
     } else {
       accomidations = [];
     }
-
+    const newDesk = new Desk(true, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, "#000000", accomidations);
+    setCurrDesk(newDesk);
+    setCurrItem(undefined);  
     setItems((prevItems: Item[]) =>
       prevItems.map((item, i) => {
         let itemCopy = new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
@@ -851,8 +855,8 @@ export default function SeatingChart() {
     setDesks((prevDesks: Desk[]) => [...prevDesks.map((desk, i) => {
       let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations());
       return deskCopy;
-    }), new Desk(true, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, "#000000", accomidations)]);
-    console.log("Updated desks:", desks);
+    }), newDesk]);
+    // console.log("Updated desks:", desks);
 
   };
 
@@ -1139,6 +1143,7 @@ export default function SeatingChart() {
     setObjY(desk.getYValue());
     setObjWidth(desk.getWidthValue());
     setObjHeight(desk.getHeightValue());
+    // setObjAccomidations(desk.getAccomidations());
   }
 
   const setStudents = () => {
@@ -1389,7 +1394,7 @@ export default function SeatingChart() {
               overflow: "visible",
             }}>
 
-              {items.slice().reverse().map((element: Item, indexCurr: number) => {
+              {items.map((element: Item, indexCurr: number) => {
                 return (<Rnd
                   key={element.id}
                   bounds="parent"
@@ -1514,7 +1519,8 @@ export default function SeatingChart() {
                 </Rnd>
                 );
               })}
-              {desks.slice().reverse().map((element: Desk, indexCurr: number) => {
+            {/* to reverse do .slice().reverse() */}
+              {desks.map((element: Desk, indexCurr: number) => {
                 return (
                   <Rnd
                     key={element.id}
