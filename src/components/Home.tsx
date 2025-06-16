@@ -28,7 +28,7 @@ export default function Home() {
 		}}>
 			<Navbar />
 			{/* <Box sx={{ textAlign: "center", alignItems: "center", justifyContent: "center", height: "100%", width: "100%", display: "flex" }}> */}
-			<Box sx={{marginLeft:"20px"}}>
+			<Box sx={{ textAlign: "center", alignItems: "center", justifyContent: "center", height: "100%", width: "100%", display: "flex" }}>
 				<Box>
 					<Typography sx={{ fontSize: "16px" }}>
 						Latest Changes (newest to oldest):
