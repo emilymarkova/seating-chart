@@ -628,7 +628,7 @@ export default function SeatingChart() {
           }));
         setDesks((prevDesks: Desk[]) =>
           prevDesks.map((desk, i) => {
-            return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(),desk.getType());
+            return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
           }));
         setCurrItem(undefined);
         setCurrDesk(undefined);
@@ -672,7 +672,7 @@ export default function SeatingChart() {
     setObjHeight(parseInt(e.target.value, 10) || 50);
     var newHeight = parseInt(e.target.value, 10) || 50;
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), newHeight, currDesk.getColorValue(), currDesk.getAccomidations(),currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), newHeight, currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -692,7 +692,7 @@ export default function SeatingChart() {
     setObjWidth(parseInt(e.target.value, 10) || 50);
     var newWidth = parseInt(e.target.value, 10) || 50
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), newWidth, currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(),currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), newWidth, currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -714,7 +714,7 @@ export default function SeatingChart() {
     setObjShapeToAdd(e.target.value);
     var shape = e.target.value
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), shape, currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(),currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), shape, currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -737,7 +737,7 @@ export default function SeatingChart() {
     setObjLabel(e.target.value);
     var label = e.target.value;
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), label, currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(),currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), label, currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -758,7 +758,7 @@ export default function SeatingChart() {
     const xValue = parseInt(e.target.value, 10) || 50;
     setObjX(xValue)
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), xValue, currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(),currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), xValue, currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -779,7 +779,7 @@ export default function SeatingChart() {
     const yValue = parseInt(e.target.value, 10) || 50;
     setObjY(yValue);
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), yValue, currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(),currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), yValue, currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -811,7 +811,7 @@ export default function SeatingChart() {
 
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
-        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(),desk.getType());
+        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
         return deskCopy;
       })
     );
@@ -844,7 +844,7 @@ export default function SeatingChart() {
       ...prevItems.map(item =>
         new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
       ),
-     newItem
+      newItem
     ]);
   };
 
@@ -857,9 +857,9 @@ export default function SeatingChart() {
     } else {
       accomidations = [];
     }
-    const newDesk = new Desk(true, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, "#000000", accomidations,"");
+    const newDesk = new Desk(true, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, "#000000", accomidations, "");
     setCurrDesk(newDesk);
-    setCurrItem(undefined);  
+    setCurrItem(undefined);
     setItems((prevItems: Item[]) =>
       prevItems.map((item, i) => {
         let itemCopy = new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
@@ -867,7 +867,7 @@ export default function SeatingChart() {
       })
     );
     setDesks((prevDesks: Desk[]) => [...prevDesks.map((desk, i) => {
-      let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(),desk.getType());
+      let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
       return deskCopy;
     }), newDesk]);
     // console.log("Updated desks:", desks);
@@ -968,7 +968,7 @@ export default function SeatingChart() {
         }));
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk, i) => {
-          return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), "#000000", desk.getAccomidations(),desk.getType());
+          return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), "#000000", desk.getAccomidations(), desk.getType());
         }));
     }
   }
@@ -1188,7 +1188,7 @@ export default function SeatingChart() {
 
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
-        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(),desk.getType());
+        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
         if (i < studentArr.length) {
           deskCopy.setName(studentArr[i]);
         } else {
@@ -1223,7 +1223,7 @@ export default function SeatingChart() {
     randomizedArr.sort(function () { return 0.5 - Math.random() });
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
-        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), randomizedArr[i].name, desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), randomizedArr[i].color, randomizedArr[i].accomidations,desk.getType());
+        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), randomizedArr[i].name, desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), randomizedArr[i].color, randomizedArr[i].accomidations, desk.getType());
         return deskCopy;
       })
     );
@@ -1373,7 +1373,7 @@ export default function SeatingChart() {
           padding: "0px",
         }}
       >
-           <Snackbar
+        <Snackbar
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           open={openSavedAlert}
           onClose={() => { setOpenSavedAlert(false) }}
@@ -1402,15 +1402,15 @@ export default function SeatingChart() {
           >
             <Box id="tableArea" ref={contentRef}
               sx={{
-              position: "relative", // This is crucial!
-              border: '2px solid black',
-              width: itemWidth,
-              height: itemHeight,
-              maxWidth: "100%",
-              maxHeight: "100%",
-              display: "block",
-              overflow: "visible",
-            }}>
+                position: "relative", // This is crucial!
+                border: '2px solid black',
+                width: itemWidth,
+                height: itemHeight,
+                maxWidth: "100%",
+                maxHeight: "100%",
+                display: "block",
+                overflow: "visible",
+              }}>
 
               {items.map((element: Item, indexCurr: number) => {
                 return (<Rnd
@@ -1455,13 +1455,15 @@ export default function SeatingChart() {
                     }
                     setItems((prevItems: Item[]) =>
                       prevItems.map((item: Item) =>
-                        new Item(item.id === element.id , item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), color)
+                        item.id === element.id
+                          ? new Item(true, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), color)
+                          : new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
                       )
                     );
 
                     setDesks((prevDesks: Desk[]) =>
                       prevDesks.map((desk, i) => {
-                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(),desk.getType());
+                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
                         return deskCopy;
                       })
                     );
@@ -1473,16 +1475,18 @@ export default function SeatingChart() {
                     if (colorModeOn) {
                       color = colorToSet;
                     }
-                       setItems((prevItems: Item[]) =>
+                    setItems((prevItems: Item[]) =>
                       prevItems.map((item: Item) =>
-                        new Item(item.id === element.id , item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), color)
+                        item.id === element.id
+                          ? new Item(true, item.getId(), item.getShape(), item.getName(), d.x, d.y, item.getWidthValue(), item.getHeightValue(), color)
+                          : new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
                       )
                     );
 
 
                     setDesks((prevDesks: Desk[]) =>
                       prevDesks.map((desk, i) => {
-                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(),desk.getType());
+                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
                         return deskCopy;
                       })
                     );
@@ -1503,16 +1507,18 @@ export default function SeatingChart() {
                     if (colorModeOn) {
                       color = colorToSet;
                     }
-                      setItems((prevItems: Item[]) =>
+                    setItems((prevItems: Item[]) =>
                       prevItems.map((item: Item) =>
-                        new Item(item.id === element.id , item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), color)
-                      )
+                      item.id === element.id
+                        ? new Item(true, item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), color)
+                        : new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
+                    )
                     );
 
 
                     setDesks((prevDesks: Desk[]) =>
                       prevDesks.map((desk, i) => {
-                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(),desk.getType());
+                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
                         return deskCopy;
                       })
                     );
@@ -1533,7 +1539,7 @@ export default function SeatingChart() {
                 </Rnd>
                 );
               })}
-            {/* to reverse do .slice().reverse() */}
+              {/* to reverse do .slice().reverse() */}
               {desks.map((element: Desk, indexCurr: number) => {
                 return (
                   <Rnd
@@ -1576,26 +1582,13 @@ export default function SeatingChart() {
                       if (colorModeOn) {
                         color = colorToSet;
                       }
-setDesks((prevDesks: Desk[]) =>
-  prevDesks.map((desk: Desk) => {
-    // Always set active to false unless it's the clicked desk
-    const isActive = desk.id === element.id;
-    return new Desk(
-      isActive,
-      desk.getId(),
-      desk.getShape(),
-      desk.getName(),
-      desk.getXValue(),
-      desk.getYValue(),
-      desk.getWidthValue(),
-      desk.getHeightValue(),
-      isActive ? color : desk.getColorValue(),
-      desk.getAccomidations(),
-      desk.getType()
-    );
-  })
-);
-
+                      setDesks((prevDesks: Desk[]) =>
+                        prevDesks.map((desk: Desk) =>
+                          desk.id === element.id
+                            ? new Desk(true, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), color, desk.getAccomidations(), desk.getType())
+                            : new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType())
+                        )
+                      );
                       setItems((prevItems: Item[]) =>
                         prevItems.map((item, i) => {
                           let itemCopy = new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
@@ -1612,25 +1605,13 @@ setDesks((prevDesks: Desk[]) =>
                       if (colorModeOn) {
                         color = colorToSet;
                       }
-setDesks((prevDesks: Desk[]) =>
-  prevDesks.map((desk: Desk) => {
-    // Always set active to false unless it's the clicked desk
-    const isActive = desk.id === element.id;
-    return new Desk(
-      isActive,
-      desk.getId(),
-      desk.getShape(),
-      desk.getName(),
-      desk.getXValue(),
-      desk.getYValue(),
-      desk.getWidthValue(),
-      desk.getHeightValue(),
-      isActive ? color : desk.getColorValue(),
-      desk.getAccomidations(),
-      desk.getType()
-    );
-  })
-);
+                      setDesks((prevDesks: Desk[]) =>
+                        prevDesks.map((desk: Desk) =>
+                          desk.id === element.id
+                            ? new Desk(true, desk.getId(), desk.getShape(), desk.getName(), d.x, d.y, desk.getWidthValue(), desk.getHeightValue(), color, desk.getAccomidations(), desk.getType())
+                            : new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType())
+                        )
+                      );
                       setItems((prevItems: Item[]) =>
                         prevItems.map((item, i) => {
                           let itemCopy = new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
@@ -1653,25 +1634,16 @@ setDesks((prevDesks: Desk[]) =>
                         color = colorToSet;
                       }
                       setDeskData(element);
-setDesks((prevDesks: Desk[]) =>
-  prevDesks.map((desk: Desk) => {
-    // Always set active to false unless it's the clicked desk
-    const isActive = desk.id === element.id;
-    return new Desk(
-      isActive,
-      desk.getId(),
-      desk.getShape(),
-      desk.getName(),
-      desk.getXValue(),
-      desk.getYValue(),
-      desk.getWidthValue(),
-      desk.getHeightValue(),
-      isActive ? color : desk.getColorValue(),
-      desk.getAccomidations(),
-      desk.getType()
-    );
-  })
-);
+                      setDesks((prevDesks: Desk[]) =>
+                        prevDesks.map((desk: Desk) => {
+                          if (desk.id === element.id) {
+                            console.log("Updating desk:", desk.id);
+                            return new Desk(true, desk.getId(), desk.getShape(), desk.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), color, desk.getAccomidations(), desk.getType());
+                          } else {
+                            return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
+                          }
+                        })
+                      );
 
                       setItems((prevItems: Item[]) =>
                         prevItems.map((item, i) => {
@@ -2134,7 +2106,7 @@ setDesks((prevDesks: Desk[]) =>
                     <Button variant="solid" onClick={resetColors} sx={{ width: "175px", marginLeft: "5px" }}>
                       Reset Colors
                     </Button>
-                     <Button variant="solid" onClick={reactToPrintFn} sx={{ width: "175px", marginLeft: "5px" }}>
+                    <Button variant="solid" onClick={reactToPrintFn} sx={{ width: "175px", marginLeft: "5px" }}>
                       Print
                     </Button>
                   </Box>
@@ -2175,10 +2147,10 @@ setDesks((prevDesks: Desk[]) =>
               {/* </Box> */}
             </Box>
           </Box>
-        
+
 
         </Box>
-     
+
       </Box>
 
     </Box>
