@@ -55,7 +55,7 @@ export default function NavBar() {
             // href="#navigation-menu"
             onClick={() => { navigate('/') }}
           >
-            <Typography>Table Map</Typography>
+            <Typography>Seating Chart App</Typography>
           </ListItemButton>
         </ListItem>
         {getAuth().currentUser &&
@@ -72,7 +72,7 @@ export default function NavBar() {
                 {/* <MenuItem><InfoOutlinedIcon /> Instructions</MenuItem> */}
                 <MenuItem onClick={() => { navigate('/seating-chart') }}><BackupTableIcon />Charts</MenuItem>
                 <MenuItem onClick={() => { window.open("https://forms.gle/NSnBUfDfmLXSRt567", "_blank") }}><FlagIcon />Form</MenuItem>
-                <MenuItem onClick={() => { window.open("https://youtu.be/l6MknVfKeIM", "_blank") }}><OndemandVideoIcon />Tutorial</MenuItem>
+                <MenuItem onClick={() => { window.open("https://youtube.com/playlist?list=PL4g9eh5fEoEK43UHXsHMPhMy0TGx2b-sm&si=w8p1udetBYdM1WYh", "_blank") }}><OndemandVideoIcon />Tutorial</MenuItem>
                 <MenuItem onClick={logOut}><ExitToAppOutlinedIcon /> Logout</MenuItem>
               </Menu>
             </Dropdown>
