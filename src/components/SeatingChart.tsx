@@ -1,3 +1,4 @@
+import { useReactToPrint } from "react-to-print";
 import * as React from "react";
 import { useState } from "react";
 import Typography from "@mui/joy/Typography";
@@ -5,6 +6,7 @@ import { Rnd } from "react-rnd";
 import { v4 as uuidv4 } from 'uuid';
 import IconButton from '@mui/material/IconButton';
 import Slider from "@mui/joy/Slider";
+import { useRef } from "react";
 import Button from "@mui/joy/Button";
 import { app } from "../firebase";
 import Snackbar from '@mui/joy/Snackbar';
@@ -206,6 +208,8 @@ export default function SeatingChart() {
   const [classNames, setClassNames] = useState(initialClassNames);
   const [itemHeight, setHeight] = useState(400);
   const [fontSize, setFontSize] = useState("12");
+  const contentRef = useRef<HTMLDivElement>(null);
+  const reactToPrintFn = useReactToPrint({ contentRef });
   const initialItems: Item[] = [];
   const [items, setItems] = useState(initialItems);
   const initialDesks: Desk[] = [];
@@ -710,7 +714,7 @@ export default function SeatingChart() {
     setObjShapeToAdd(e.target.value);
     var shape = e.target.value
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), shape, currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getAccomidations(),currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), shape, currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(),currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -1162,7 +1166,7 @@ export default function SeatingChart() {
   const setStudents = () => {
     setObjX(50);
     setObjY(50);
-    let studentArr = studentsToAdd.split("\n").map(line => line.trim()).filter(line => line !== "");
+    let studentArr = studentsToAdd.split("\n").map(line => line.trim());
     if (studentArr.length > desks.length) {
       let desksToAdd: Desk[] = [];
       let numberOfDesksToAdd = studentArr.length - desks.length;;
@@ -1396,7 +1400,8 @@ export default function SeatingChart() {
               alignItems: "center",
             }}
           >
-            <Box id="tableArea" sx={{
+            <Box id="tableArea" ref={contentRef}
+              sx={{
               position: "relative", // This is crucial!
               border: '2px solid black',
               width: itemWidth,
@@ -1450,9 +1455,7 @@ export default function SeatingChart() {
                     }
                     setItems((prevItems: Item[]) =>
                       prevItems.map((item: Item) =>
-                        item.id === element.id
-                          ? new Item(true, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), color)
-                          : new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
+                        new Item(item.id === element.id , item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), color)
                       )
                     );
 
@@ -1470,13 +1473,12 @@ export default function SeatingChart() {
                     if (colorModeOn) {
                       color = colorToSet;
                     }
-                    setItems((prevItems: Item[]) =>
+                       setItems((prevItems: Item[]) =>
                       prevItems.map((item: Item) =>
-                        item.id === element.id
-                          ? new Item(true, item.getId(), item.getShape(), item.getName(), d.x, d.y, item.getWidthValue(), item.getHeightValue(), color)
-                          : new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
+                        new Item(item.id === element.id , item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), color)
                       )
                     );
+
 
                     setDesks((prevDesks: Desk[]) =>
                       prevDesks.map((desk, i) => {
@@ -1501,13 +1503,12 @@ export default function SeatingChart() {
                     if (colorModeOn) {
                       color = colorToSet;
                     }
-                    setItems((prevItems: Item[]) =>
+                      setItems((prevItems: Item[]) =>
                       prevItems.map((item: Item) =>
-                        item.id === element.id
-                          ? new Item(true, item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), color)
-                          : new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
+                        new Item(item.id === element.id , item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), color)
                       )
                     );
+
 
                     setDesks((prevDesks: Desk[]) =>
                       prevDesks.map((desk, i) => {
@@ -1575,13 +1576,25 @@ export default function SeatingChart() {
                       if (colorModeOn) {
                         color = colorToSet;
                       }
-                      setDesks((prevDesks: Desk[]) =>
-                        prevDesks.map((desk: Desk) =>
-                          desk.id === element.id
-                            ? new Desk(true, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), color, desk.getAccomidations(), desk.getType())
-                            : new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(),desk.getType())
-                        )
-                      );
+setDesks((prevDesks: Desk[]) =>
+  prevDesks.map((desk: Desk) => {
+    // Always set active to false unless it's the clicked desk
+    const isActive = desk.id === element.id;
+    return new Desk(
+      isActive,
+      desk.getId(),
+      desk.getShape(),
+      desk.getName(),
+      desk.getXValue(),
+      desk.getYValue(),
+      desk.getWidthValue(),
+      desk.getHeightValue(),
+      isActive ? color : desk.getColorValue(),
+      desk.getAccomidations(),
+      desk.getType()
+    );
+  })
+);
 
                       setItems((prevItems: Item[]) =>
                         prevItems.map((item, i) => {
@@ -1599,14 +1612,25 @@ export default function SeatingChart() {
                       if (colorModeOn) {
                         color = colorToSet;
                       }
-                      setDesks((prevDesks: Desk[]) =>
-                        prevDesks.map((desk: Desk) =>
-                          desk.id === element.id
-                            ? new Desk(true, desk.getId(), desk.getShape(), desk.getName(), d.x, d.y, desk.getWidthValue(), desk.getHeightValue(), color, desk.getAccomidations(),desk.getType())
-                            : new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(),desk.getType())
-                        )
-                      );
-
+setDesks((prevDesks: Desk[]) =>
+  prevDesks.map((desk: Desk) => {
+    // Always set active to false unless it's the clicked desk
+    const isActive = desk.id === element.id;
+    return new Desk(
+      isActive,
+      desk.getId(),
+      desk.getShape(),
+      desk.getName(),
+      desk.getXValue(),
+      desk.getYValue(),
+      desk.getWidthValue(),
+      desk.getHeightValue(),
+      isActive ? color : desk.getColorValue(),
+      desk.getAccomidations(),
+      desk.getType()
+    );
+  })
+);
                       setItems((prevItems: Item[]) =>
                         prevItems.map((item, i) => {
                           let itemCopy = new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
@@ -1629,16 +1653,25 @@ export default function SeatingChart() {
                         color = colorToSet;
                       }
                       setDeskData(element);
-                      setDesks((prevDesks: Desk[]) =>
-                        prevDesks.map((desk: Desk) => {
-                          if (desk.id === element.id) {
-                            console.log("Updating desk:", desk.id);
-                            return new Desk(true, desk.getId(), desk.getShape(), desk.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), color, desk.getAccomidations(),desk.getType());
-                          } else {
-                            return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(),desk.getType());
-                          }
-                        })
-                      );
+setDesks((prevDesks: Desk[]) =>
+  prevDesks.map((desk: Desk) => {
+    // Always set active to false unless it's the clicked desk
+    const isActive = desk.id === element.id;
+    return new Desk(
+      isActive,
+      desk.getId(),
+      desk.getShape(),
+      desk.getName(),
+      desk.getXValue(),
+      desk.getYValue(),
+      desk.getWidthValue(),
+      desk.getHeightValue(),
+      isActive ? color : desk.getColorValue(),
+      desk.getAccomidations(),
+      desk.getType()
+    );
+  })
+);
 
                       setItems((prevItems: Item[]) =>
                         prevItems.map((item, i) => {
@@ -2097,9 +2130,12 @@ export default function SeatingChart() {
                       Clear Desks
                     </Button>
                   </Box>
-                  <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
-                    <Button variant="solid" onClick={resetColors} sx={{ width: "175px" }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", margin: "5px", width: "100%" }}>
+                    <Button variant="solid" onClick={resetColors} sx={{ width: "175px", marginLeft: "5px" }}>
                       Reset Colors
+                    </Button>
+                     <Button variant="solid" onClick={reactToPrintFn} sx={{ width: "175px", marginLeft: "5px" }}>
+                      Print
                     </Button>
                   </Box>
                   <Box sx={{ display: "flex", justifyContent: "center", width: "100%", marginTop: 2, paddingRight: "15px", paddingLeft: "15px" }}>
