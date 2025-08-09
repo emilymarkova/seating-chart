@@ -1,3 +1,10 @@
+import ChairAltIcon from '@mui/icons-material/ChairAlt';
+import EmergencyIcon from '@mui/icons-material/Emergency';
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
+import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
+import Filter1Icon from '@mui/icons-material/Filter1';
+import Filter2Icon from '@mui/icons-material/Filter2';
+import Filter3Icon from '@mui/icons-material/Filter3';
 import { useReactToPrint } from "react-to-print";
 import * as React from "react";
 import { useState } from "react";
@@ -5,6 +12,9 @@ import Typography from "@mui/joy/Typography";
 import { Rnd } from "react-rnd";
 import { v4 as uuidv4 } from 'uuid';
 import IconButton from '@mui/material/IconButton';
+import Select from '@mui/joy/Select';
+import Option from '@mui/joy/Option';
+import { Box } from '@mui/joy';
 import Slider from "@mui/joy/Slider";
 import { useRef } from "react";
 import Button from "@mui/joy/Button";
@@ -24,7 +34,6 @@ import {
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
 import { getAuth } from "firebase/auth";
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -38,7 +47,6 @@ import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Textarea from '@mui/joy/Textarea';
 import { useEffect, useCallback } from 'react';
-import { Box } from '@mui/joy';
 import Modal from '@mui/joy/Modal';
 import ModalClose from '@mui/joy/ModalClose';
 import Sheet from '@mui/joy/Sheet';
@@ -156,7 +164,7 @@ class Item {
 }
 
 class Desk extends Item {
-  accomidations: string[];
+  accommodations: string[];
   type: string;
   constructor(active: boolean, id: string,
     shape: string,
@@ -166,18 +174,18 @@ class Desk extends Item {
     widthValue: number,
     heightValue: number,
     colorValue: string,
-    accomidations: string[], type: string) {
+    accommodations: string[], type: string) {
     super(active, id, shape, name, xValue, yValue, widthValue, heightValue, colorValue);
-    this.accomidations = accomidations;
+    this.accommodations = accommodations || [];
     this.type = type;
   }
 
-  setAccomidations(newAccomidations: string[]) {
-    this.accomidations = newAccomidations;
+  setAccommodations(newAccommodations: string[]) {
+    this.accommodations = newAccommodations;
   }
 
-  getAccomidations() {
-    return this.accomidations;
+  getAccommodations() {
+    return this.accommodations;
   }
 
   setType(newType: string) {
@@ -197,6 +205,7 @@ function valueText(value: number) {
 
 export default function SeatingChart() {
   const [swapModeOn, setSwapModeOn] = useState(false);
+  const [accommodationsModeOn, setAccommodationsModeOn] = useState(true);
   const [colorModeOn, setColorModeOn] = useState(false);
   const [noteBoxModeOn, setNoteBoxModeOn] = useState(false);
   const [colorToSet, setColorToSet] = useState("#000000");
@@ -221,7 +230,7 @@ export default function SeatingChart() {
   const [objY, setObjY] = useState(50);
   const [objShapeToAdd, setObjShapeToAdd] = useState("rectangle");
   const [objLabel, setObjLabel] = useState("Label");
-  const [objAccomidations, setObjAccomidations] = useState([]);
+  const [objAccommodations, setObjAccommodations] = useState<string[]>([]);
   const [currItem, setCurrItem] = useState<Item>();
   const [currDesk, setCurrDesk] = useState<Desk>();
   const [open, setOpen] = React.useState<boolean>(false);
@@ -513,7 +522,7 @@ export default function SeatingChart() {
           let desks = [];
 
           serializedDesks.forEach((desk: any) => {
-            desks.push(new Desk(false, desk.id, desk.shape, desk.name, desk.xValue, desk.yValue, desk.widthValue, desk.heightValue, desk.colorValue, desk.accomidations, desk.type));
+            desks.push(new Desk(false, desk.id, desk.shape, desk.name, desk.xValue, desk.yValue, desk.widthValue, desk.heightValue, desk.colorValue, desk.accommodations, desk.type));
           });
           setDesks(desks || []);
           let serializedItems = Array.isArray(docData.items) ? docData.items : [];
@@ -580,7 +589,7 @@ export default function SeatingChart() {
     const update = async () => {
 
       setNotes("");;
-      setObjAccomidations([]);
+      setObjAccommodations([]);
       setObjLabel("Label");
       setObjX(50);
       setObjY(50);
@@ -589,6 +598,7 @@ export default function SeatingChart() {
       setObjToAdd("placeholder");
       // setFontSize("12");
       setSwapModeOn(false);
+      setAccommodationsModeOn(true);
       setOpenAdvancedSettings(false);
       setOpenNotes(false);
       setCurrItem(undefined);
@@ -618,7 +628,7 @@ export default function SeatingChart() {
 
   useEffect((e: any) => {
     // console.log("running");
-    // console.log(objAccomidations);
+    // console.log(objAccommodations);
     function handleClick(e: any) {
       if (e.target && e.target === document.getElementById('tableArea')) {
         console.log("hmmmmmmm changing everything");
@@ -628,7 +638,7 @@ export default function SeatingChart() {
           }));
         setDesks((prevDesks: Desk[]) =>
           prevDesks.map((desk, i) => {
-            return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
+            return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccommodations(), desk.getType());
           }));
         setCurrItem(undefined);
         setCurrDesk(undefined);
@@ -640,7 +650,7 @@ export default function SeatingChart() {
         setObjX(50);
         setObjY(50);
         setObjLabel("Label");
-        setObjAccomidations([]);
+        setObjAccommodations([]);
       }
     }
     // }
@@ -653,7 +663,7 @@ export default function SeatingChart() {
         window.document.getElementById('tableArea')!.removeEventListener('click', handleClick);
       }
     };
-  }, [objAccomidations, currDesk, currItem, desks, items]);
+  }, [objAccommodations, currDesk, currItem, desks, items]);
 
 
 
@@ -672,7 +682,7 @@ export default function SeatingChart() {
     setObjHeight(parseInt(e.target.value, 10) || 50);
     var newHeight = parseInt(e.target.value, 10) || 50;
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), newHeight, currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), newHeight, currDesk.getColorValue(), currDesk.getAccommodations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -687,12 +697,27 @@ export default function SeatingChart() {
       );
     }
   };
+
+
+  const updateObjAccommodations = (e: any, newAccommodations: string[]) => {
+    e.stopPropagation();
+    setObjAccommodations(newAccommodations || []);
+    if (currDesk !== undefined) {
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), newAccommodations, currDesk.getType());
+      setCurrDesk(updatedDesk);
+      setDesks((prevDesks: Desk[]) =>
+        prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
+      );
+    }
+  };
+
+
   const updateObjWidth = (e: any) => {
     e.stopPropagation();
     setObjWidth(parseInt(e.target.value, 10) || 50);
     var newWidth = parseInt(e.target.value, 10) || 50
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), newWidth, currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), newWidth, currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccommodations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -714,7 +739,7 @@ export default function SeatingChart() {
     setObjShapeToAdd(e.target.value);
     var shape = e.target.value
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), shape, currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), shape, currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccommodations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -737,7 +762,7 @@ export default function SeatingChart() {
     setObjLabel(e.target.value);
     var label = e.target.value;
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), label, currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), label, currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccommodations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -758,7 +783,7 @@ export default function SeatingChart() {
     const xValue = parseInt(e.target.value, 10) || 50;
     setObjX(xValue)
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), xValue, currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), xValue, currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccommodations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -779,7 +804,7 @@ export default function SeatingChart() {
     const yValue = parseInt(e.target.value, 10) || 50;
     setObjY(yValue);
     if (currDesk !== undefined) {
-      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), yValue, currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccomidations(), currDesk.getType());
+      const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), yValue, currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), currDesk.getAccommodations(), currDesk.getType());
       setCurrDesk(updatedDesk);
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk) => (desk.id === currDesk.id ? updatedDesk : desk))
@@ -811,7 +836,7 @@ export default function SeatingChart() {
 
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
-        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
+        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccommodations(), desk.getType());
         return deskCopy;
       })
     );
@@ -850,14 +875,14 @@ export default function SeatingChart() {
 
   const addDesk = () => {
     // console.log("adding desk");
-    const accomidationElement = document.getElementById('specialAccommodations');
-    let accomidations: string[];
-    if (accomidationElement) {
-      accomidations = Array.from(accomidationElement.querySelectorAll('[aria-selected="true"]')).map((option) => option.getAttribute('data-value')).filter((value): value is string => value !== null);
-    } else {
-      accomidations = [];
-    }
-    const newDesk = new Desk(true, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, "#000000", accomidations, "");
+    // const accomidationElement = document.getElementById('specialAccommodations');
+    // let accommodations: string[];
+    // if (accomidationElement) {
+    //   accommodations = Array.from(accomidationElement.querySelectorAll('[aria-selected="true"]')).map((option) => option.getAttribute('data-value')).filter((value): value is string => value !== null);
+    // } else {
+    //   accommodations = [];
+    // }
+    const newDesk = new Desk(true, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, "#000000", objAccommodations, "");
     setCurrDesk(newDesk);
     setCurrItem(undefined);
     setItems((prevItems: Item[]) =>
@@ -867,7 +892,7 @@ export default function SeatingChart() {
       })
     );
     setDesks((prevDesks: Desk[]) => [...prevDesks.map((desk, i) => {
-      let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
+      let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccommodations(), desk.getType());
       return deskCopy;
     }), newDesk]);
     // console.log("Updated desks:", desks);
@@ -881,7 +906,7 @@ export default function SeatingChart() {
     setObjX(50);
     setObjY(50);
     setObjLabel("Label");
-    setObjAccomidations([]);
+    setObjAccommodations([]);
     setCurrItem(undefined);
   };
 
@@ -892,7 +917,7 @@ export default function SeatingChart() {
     setObjX(50);
     setObjY(50);
     setObjLabel("Label");
-    setObjAccomidations([]);
+    setObjAccommodations([]);
     setCurrDesk(undefined);
   };
 
@@ -920,7 +945,7 @@ export default function SeatingChart() {
         desk.getWidthValue(),
         desk.getHeightValue(),
         deskToSwap.getColorValue(),
-        deskToSwap.getAccomidations(),
+        deskToSwap.getAccommodations(),
         desk.getType()
       );
 
@@ -934,7 +959,7 @@ export default function SeatingChart() {
         deskToSwap.getWidthValue(),
         deskToSwap.getHeightValue(),
         desk.getColorValue(),
-        desk.getAccomidations(),
+        desk.getAccommodations(),
         deskToSwap.getType()
       );
       setDesks((prevDesks: Desk[]) =>
@@ -968,7 +993,7 @@ export default function SeatingChart() {
         }));
       setDesks((prevDesks: Desk[]) =>
         prevDesks.map((desk, i) => {
-          return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), "#000000", desk.getAccomidations(), desk.getType());
+          return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), "#000000", desk.getAccommodations(), desk.getType());
         }));
     }
   }
@@ -989,6 +1014,8 @@ export default function SeatingChart() {
     if (user) {
 
       const uid = user.uid;
+
+
       const serializedDesks = desks.map((desk) => ({
         id: desk.getId() || '',
         shape: desk.getShape() || 'rectangle',
@@ -998,10 +1025,12 @@ export default function SeatingChart() {
         widthValue: desk.getWidthValue() || 50,
         heightValue: desk.getHeightValue() || 50,
         colorValue: desk.getColorValue() || '#000000',
-        accommodations: desk.getAccomidations() || '',
+        accommodations: desk.getAccommodations() || [],
         type: desk.getType() || ''
       }));
 
+      serializedDesks.forEach((desk) => {
+      });
       const serializedItems = items.map((item) => ({
         id: item.getId() || '',
         shape: item.getShape() || 'rectangle',
@@ -1160,7 +1189,7 @@ export default function SeatingChart() {
     setObjY(desk.getYValue());
     setObjWidth(desk.getWidthValue());
     setObjHeight(desk.getHeightValue());
-    // setObjAccomidations(desk.getAccomidations());
+    setObjAccommodations(desk.getAccommodations());
   }
 
   const setStudents = () => {
@@ -1174,7 +1203,7 @@ export default function SeatingChart() {
 
       for (let i = 0; i < numberOfDesksToAdd; i++) {
         if (objToAdd !== "placeholder") {
-          desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, objWidth, objHeight, colorToSet, []));
+          desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, objWidth, objHeight, colorToSet, accommodations));
         } else {
           desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, 50, 50, "#000000", []));
         }
@@ -1188,7 +1217,7 @@ export default function SeatingChart() {
 
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
-        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
+        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccommodations(), desk.getType());
         if (i < studentArr.length) {
           deskCopy.setName(studentArr[i]);
         } else {
@@ -1217,13 +1246,13 @@ export default function SeatingChart() {
   const randomizeStudents = () => {
     let randomizedArr: any[] = [];
     for (let i = 0; i < desks.length; i++) {
-      randomizedArr[i] = { accomidations: desks[i].getAccomidations(), name: desks[i].getName(), color: desks[i].getColorValue() };
+      randomizedArr[i] = { accommodations: desks[i].getAccommodations(), name: desks[i].getName(), color: desks[i].getColorValue() };
     }
 
     randomizedArr.sort(function () { return 0.5 - Math.random() });
     setDesks((prevDesks: Desk[]) =>
       prevDesks.map((desk, i) => {
-        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), randomizedArr[i].name, desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), randomizedArr[i].color, randomizedArr[i].accomidations, desk.getType());
+        let deskCopy = new Desk(desk.getActive(), desk.getId(), desk.getShape(), randomizedArr[i].name, desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), randomizedArr[i].color, randomizedArr[i].accommodations, desk.getType());
         return deskCopy;
       })
     );
@@ -1463,7 +1492,7 @@ export default function SeatingChart() {
 
                     setDesks((prevDesks: Desk[]) =>
                       prevDesks.map((desk, i) => {
-                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
+                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccommodations(), desk.getType());
                         return deskCopy;
                       })
                     );
@@ -1486,7 +1515,7 @@ export default function SeatingChart() {
 
                     setDesks((prevDesks: Desk[]) =>
                       prevDesks.map((desk, i) => {
-                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
+                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccommodations(), desk.getType());
                         return deskCopy;
                       })
                     );
@@ -1509,16 +1538,16 @@ export default function SeatingChart() {
                     }
                     setItems((prevItems: Item[]) =>
                       prevItems.map((item: Item) =>
-                      item.id === element.id
-                        ? new Item(true, item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), color)
-                        : new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
-                    )
+                        item.id === element.id
+                          ? new Item(true, item.getId(), item.getShape(), item.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), color)
+                          : new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue())
+                      )
                     );
 
 
                     setDesks((prevDesks: Desk[]) =>
                       prevDesks.map((desk, i) => {
-                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
+                        let deskCopy = new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccommodations(), desk.getType());
                         return deskCopy;
                       })
                     );
@@ -1585,8 +1614,8 @@ export default function SeatingChart() {
                       setDesks((prevDesks: Desk[]) =>
                         prevDesks.map((desk: Desk) =>
                           desk.id === element.id
-                            ? new Desk(true, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), color, desk.getAccomidations(), desk.getType())
-                            : new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType())
+                            ? new Desk(true, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), color, desk.getAccommodations(), desk.getType())
+                            : new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccommodations(), desk.getType())
                         )
                       );
                       setItems((prevItems: Item[]) =>
@@ -1608,8 +1637,8 @@ export default function SeatingChart() {
                       setDesks((prevDesks: Desk[]) =>
                         prevDesks.map((desk: Desk) =>
                           desk.id === element.id
-                            ? new Desk(true, desk.getId(), desk.getShape(), desk.getName(), d.x, d.y, desk.getWidthValue(), desk.getHeightValue(), color, desk.getAccomidations(), desk.getType())
-                            : new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType())
+                            ? new Desk(true, desk.getId(), desk.getShape(), desk.getName(), d.x, d.y, desk.getWidthValue(), desk.getHeightValue(), color, desk.getAccommodations(), desk.getType())
+                            : new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccommodations(), desk.getType())
                         )
                       );
                       setItems((prevItems: Item[]) =>
@@ -1638,9 +1667,9 @@ export default function SeatingChart() {
                         prevDesks.map((desk: Desk) => {
                           if (desk.id === element.id) {
                             console.log("Updating desk:", desk.id);
-                            return new Desk(true, desk.getId(), desk.getShape(), desk.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), color, desk.getAccomidations(), desk.getType());
+                            return new Desk(true, desk.getId(), desk.getShape(), desk.getName(), position.x, position.y, parseInt(ref.style.width, 10), parseInt(ref.style.height, 10), color, desk.getAccommodations(), desk.getType());
                           } else {
-                            return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccomidations(), desk.getType());
+                            return new Desk(false, desk.getId(), desk.getShape(), desk.getName(), desk.getXValue(), desk.getYValue(), desk.getWidthValue(), desk.getHeightValue(), desk.getColorValue(), desk.getAccommodations(), desk.getType());
                           }
                         })
                       );
@@ -1661,12 +1690,104 @@ export default function SeatingChart() {
                       setObjHeight(parseInt(ref.style.height, 10));
                     }}
                   >
-                    {
-                      swapModeOn &&
-                      <IconButton aria-label="delete" size="small" sx={{ position: "absolute", top: 0, right: 0, textAlign: "right", backgroundColor: deskToSwap?.getId() === element.getId() ? 'lightblue' : 'white' }} onClick={(e) => { handleSwap(e, element, true) }}>
-                        <SwapHorizIcon fontSize="small" />
-                      </IconButton>
-                    }
+                    <Box sx={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      display: "flex",
+                      flexDirection: "row",
+                      width: "100%",
+                      marginTop: "5px",
+                      marginRight: "5px",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 0.05
+                    }}>
+
+                      {accommodationsModeOn && element.getAccommodations().includes("front") &&
+                        <IconButton sx={{
+                          '& .MuiSvgIcon-root': {
+                            fontSize: '18px'
+                          }, height: "18px", width: "18px"
+                        }} >
+                          <ChairAltIcon />
+
+                        </IconButton>
+                      }
+
+                      {accommodationsModeOn && element.getAccommodations().includes("med") &&
+                        <IconButton sx={{
+                          '& .MuiSvgIcon-root': {
+                            fontSize: '18px'
+                          }, height: "18px", width: "18px"
+                        }} >
+                          <EmergencyIcon />
+
+                        </IconButton>
+                      }
+                      {accommodationsModeOn && element.getAccommodations().includes("504") &&
+                        <IconButton sx={{
+                          '& .MuiSvgIcon-root': {
+                            fontSize: '18px'
+                          }, height: "18px", width: "18px"
+                        }} >
+                          <CandlestickChartIcon />
+
+                        </IconButton>
+                      }
+
+
+                      {accommodationsModeOn && element.getAccommodations().includes("IEP") &&
+                        <IconButton sx={{
+                          '& .MuiSvgIcon-root': {
+                            fontSize: '18px'
+                          }, height: "18px", width: "18px"
+                        }} >
+                          <TextSnippetIcon />
+
+                        </IconButton>
+                      }
+                      {accommodationsModeOn && element.getAccommodations().includes("E1") &&
+                        <IconButton sx={{
+                          '& .MuiSvgIcon-root': {
+                            fontSize: '18px'
+                          }, height: "18px", width: "18px"
+                        }} >
+                          <Filter1Icon />
+
+                        </IconButton>
+                      }
+                      {accommodationsModeOn && element.getAccommodations().includes("E2") &&
+                        <IconButton sx={{
+                          '& .MuiSvgIcon-root': {
+                            fontSize: '18px'
+                          }, height: "18px", width: "18px"
+                        }} >
+                          <Filter2Icon />
+
+                        </IconButton>
+                      }
+                      {accommodationsModeOn && element.getAccommodations().includes("E3") &&
+                        <IconButton sx={{
+                          '& .MuiSvgIcon-root': {
+                            fontSize: '18px'
+                          }, height: "18px", width: "18px"
+                        }} >
+                          <Filter3Icon />
+                        </IconButton>
+                      }
+
+                      {
+                        swapModeOn &&
+                        <IconButton aria-label="delete" sx={{
+                          '& .MuiSvgIcon-root': {
+                            fontSize: '18px'
+                          }, height: "18px", width: "18px", backgroundColor: deskToSwap?.getId() === element.getId() ? 'lightblue' : 'white'
+                        }} onClick={(e) => { handleSwap(e, element, true) }}>
+                          <SwapHorizIcon />
+                        </IconButton>
+                      }
+                    </Box>
                     {!numbersModeOn &&
                       <Typography sx={{
                         fontSize: fontSize + "px", color: "black", maxWidth: "100%", textWrap: "wrap", overflow: "hidden",
@@ -2060,6 +2181,25 @@ export default function SeatingChart() {
                   />
                 </Box>
               </Stack>
+              <Typography level="body-md" sx={{ marginBottom: "9px" }}>
+                Special Notes:
+              </Typography>
+              <Stack spacing={1.5} sx={{ alignItems: "center" }}>
+                <Select
+                  multiple
+                  value={objAccommodations}
+                  onChange={updateObjAccommodations}
+                  sx={{ width: '300px' }}
+                >
+                  <Option value="front">Front</Option>
+                  <Option value="504">504</Option>
+                  <Option value="IEP">IEP</Option>
+                  <Option value="med">Med</Option>
+                  <Option value="E1">E1</Option>
+                  <Option value="E2">E2</Option>
+                  <Option value="E3">E3</Option>
+                </Select>
+              </Stack>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", margin: "15px" }}>
@@ -2137,6 +2277,16 @@ export default function SeatingChart() {
                       <Switch
                         checked={noteBoxModeOn}
                         onChange={(event) => { setNoteBoxModeOn(event?.target.checked) }}
+                      />
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ display: "flex", justifyContent: "center", width: "100%", marginTop: 2, paddingRight: "15px", paddingLeft: "15px" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
+                      <Typography>Accommodations</Typography>
+                      <Switch
+                        checked={accommodationsModeOn}
+                        onChange={(event) => { setAccommodationsModeOn(event?.target.checked) }}
                       />
                     </Box>
                   </Box>

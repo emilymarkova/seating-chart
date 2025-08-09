@@ -39,6 +39,9 @@ export default function Home() {
 					<Typography sx={{ fontSize: "13px" }}>
 						2. Added a new feature that allows you to save the seating chart as a PDF file/print it. 
 					</Typography>
+					<Typography sx={{ fontSize: "13px" }}>
+						3. Added accommodation icons to the seating chart and uploaded a tutorial video.
+					</Typography>
 			
 					{!signedIn &&
 						<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", marginTop: "20px" }}>
