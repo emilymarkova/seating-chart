@@ -1,6 +1,7 @@
 import ChairAltIcon from '@mui/icons-material/ChairAlt';
 import EmergencyIcon from '@mui/icons-material/Emergency';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
+import BallotIcon from '@mui/icons-material/Ballot';
 import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
 import Filter1Icon from '@mui/icons-material/Filter1';
 import Filter2Icon from '@mui/icons-material/Filter2';
@@ -12,7 +13,8 @@ import Typography from "@mui/joy/Typography";
 import { Rnd } from "react-rnd";
 import { v4 as uuidv4 } from 'uuid';
 import IconButton from '@mui/material/IconButton';
-import Select from '@mui/joy/Select';
+import InputLabel from '@mui/material/InputLabel';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Option from '@mui/joy/Option';
 import { Box } from '@mui/joy';
 import Slider from "@mui/joy/Slider";
@@ -346,7 +348,7 @@ export default function SeatingChart() {
               }
             });
           } else {
-            alert("oops! it seemed like we couldn't find records of this class :( 789")
+            alert("oops! it seemed like we couldn't find records of this class :(")
           }
 
           if (classListSnap.exists()) {
@@ -371,7 +373,7 @@ export default function SeatingChart() {
             // updateInfoForCurrentClass();
 
           } else {
-            alert("oops! it seemed like we couldn't find records of this class :( 456")
+            alert("oops! it seemed like we couldn't find records of this class :(")
           }
         } catch (error) {
           alert("Error getting document:" + (error as Error).message);
@@ -438,17 +440,6 @@ export default function SeatingChart() {
               // alert("index is : " + indexToSelect);
 
               setSelectedTab(indexToSelect);
-              // alert("classesArr : " + classesArr);
-              // setClassName(classesArr[indexToSelect]);
-              // alert("className : " + className);
-              // updateInfoForCurrentClass();
-              // alert("selected tab is : " + selectedTab);
-              // updateInfoForCurrentClass();
-              // setClassName(classNames[0]);
-              // alert("className : " + className);
-              // alert("setting to 0; delete");
-              // setSelectedTab(0);
-              // updateInfoForCurrentClass();
 
             } else {
               alert("oops! it seemed like we couldn't find records of this class :( 456")
@@ -699,8 +690,9 @@ export default function SeatingChart() {
   };
 
 
-  const updateObjAccommodations = (e: any, newAccommodations: string[]) => {
+  const updateObjAccommodations = (e: any) => {
     e.stopPropagation();
+    const newAccommodations = e.target.value as string[];
     setObjAccommodations(newAccommodations || []);
     if (currDesk !== undefined) {
       const updatedDesk = new Desk(currDesk.getActive(), currDesk.getId(), currDesk.getShape(), currDesk.getName(), currDesk.getXValue(), currDesk.getYValue(), currDesk.getWidthValue(), currDesk.getHeightValue(), currDesk.getColorValue(), newAccommodations, currDesk.getType());
@@ -1699,59 +1691,70 @@ export default function SeatingChart() {
                       width: "100%",
                       marginTop: "5px",
                       marginRight: "5px",
-                      alignItems: "center",
+                      alignItems: "left",
                       justifyContent: "center",
                       gap: 0.05
                     }}>
 
-                      {accommodationsModeOn && element.getAccommodations().includes("front") &&
+                      {/* {accommodationsModeOn && element.getAccommodations().includes("front") &&
                         <IconButton sx={{
                           '& .MuiSvgIcon-root': {
-                            fontSize: '18px'
-                          }, height: "18px", width: "18px"
+                            fontSize: '17px'
+                          }, height: "17px", width: "17px"
                         }} >
                           <ChairAltIcon />
 
                         </IconButton>
-                      }
+                      } */}
 
-                      {accommodationsModeOn && element.getAccommodations().includes("med") &&
-                        <IconButton sx={{
+                      {
+                        swapModeOn &&
+                        <IconButton aria-label="delete" sx={{
                           '& .MuiSvgIcon-root': {
-                            fontSize: '18px'
-                          }, height: "18px", width: "18px"
-                        }} >
-                          <EmergencyIcon />
-
+                            fontSize: '17px'
+                          }, height: "17px", width: "17px", backgroundColor: deskToSwap?.getId() === element.getId() ? 'lightblue' : 'white'
+                        }} onClick={(e) => { handleSwap(e, element, true) }}>
+                          <SwapHorizIcon />
                         </IconButton>
                       }
                       {accommodationsModeOn && element.getAccommodations().includes("504") &&
                         <IconButton sx={{
                           '& .MuiSvgIcon-root': {
-                            fontSize: '18px'
-                          }, height: "18px", width: "18px"
+                            fontSize: '17px'
+                          }, height: "17px", width: "17px"
                         }} >
-                          <CandlestickChartIcon />
+                          <BallotIcon />
 
                         </IconButton>
                       }
 
+                      {accommodationsModeOn && element.getAccommodations().includes("medical") &&
+                        <IconButton sx={{
+                          '& .MuiSvgIcon-root': {
+                            fontSize: '17px'
+                          }, height: "17px", width: "17px"
+                        }} >
+                          <EmergencyIcon />
 
+                        </IconButton>
+                      }
+
+                      {/* 
                       {accommodationsModeOn && element.getAccommodations().includes("IEP") &&
                         <IconButton sx={{
                           '& .MuiSvgIcon-root': {
-                            fontSize: '18px'
-                          }, height: "18px", width: "18px"
+                            fontSize: '17px'
+                          }, height: "17px", width: "17px"
                         }} >
                           <TextSnippetIcon />
 
                         </IconButton>
-                      }
+                      } */}
                       {accommodationsModeOn && element.getAccommodations().includes("E1") &&
                         <IconButton sx={{
                           '& .MuiSvgIcon-root': {
-                            fontSize: '18px'
-                          }, height: "18px", width: "18px"
+                            fontSize: '17px'
+                          }, height: "17px", width: "17px"
                         }} >
                           <Filter1Icon />
 
@@ -1760,8 +1763,8 @@ export default function SeatingChart() {
                       {accommodationsModeOn && element.getAccommodations().includes("E2") &&
                         <IconButton sx={{
                           '& .MuiSvgIcon-root': {
-                            fontSize: '18px'
-                          }, height: "18px", width: "18px"
+                            fontSize: '17px'
+                          }, height: "17px", width: "17px"
                         }} >
                           <Filter2Icon />
 
@@ -1770,23 +1773,14 @@ export default function SeatingChart() {
                       {accommodationsModeOn && element.getAccommodations().includes("E3") &&
                         <IconButton sx={{
                           '& .MuiSvgIcon-root': {
-                            fontSize: '18px'
-                          }, height: "18px", width: "18px"
+                            fontSize: '17px'
+                          }, height: "17px", width: "17px"
                         }} >
                           <Filter3Icon />
                         </IconButton>
                       }
 
-                      {
-                        swapModeOn &&
-                        <IconButton aria-label="delete" sx={{
-                          '& .MuiSvgIcon-root': {
-                            fontSize: '18px'
-                          }, height: "18px", width: "18px", backgroundColor: deskToSwap?.getId() === element.getId() ? 'lightblue' : 'white'
-                        }} onClick={(e) => { handleSwap(e, element, true) }}>
-                          <SwapHorizIcon />
-                        </IconButton>
-                      }
+
                     </Box>
                     {!numbersModeOn &&
                       <Typography sx={{
@@ -1947,7 +1941,7 @@ export default function SeatingChart() {
                   display: "flex",
                   width: "100%",
                   justifyContent: "center",
-                  alignItems: "center", gap: "10px", marginTop: "5px"
+                  alignItems: "center", gap: "10px", marginTop: "15px"
                 }}>
                   <Typography sx={{ marginLeft: "5px" }}>Font Size:</Typography>
                   <Input
@@ -1964,24 +1958,36 @@ export default function SeatingChart() {
                     onChange={(e: any) => { setFontSize(parseInt(e.target.value, 10) || 12) }}
                   />
                   <Typography>Color : </Typography>
+                  <FormControl size="small">
+                    <Select
+                      sx={{ width: "150px", height: "40px" }}
+                      // id="set_color_to_set"
+                      // label="set_color_to_set_label"
+                      value={colorToSet}
+                      sx={{ backgroundColor: "white" }}
+                      onChange={(e: SelectChangeEvent) => { setColorToSet(e.target.value) }}
+                    >
+                      <MenuItem value={"#000000"}>Black</MenuItem>
+                      <MenuItem value={"#FF0000"}>Red</MenuItem>
+                      <MenuItem value={"#DB6600"}>Orange</MenuItem>
+                      <MenuItem value={"#FFED00"}>Yellow</MenuItem>
+                      <MenuItem value={"#76B80D"}>Green</MenuItem>
+                      <MenuItem value={"#007CB5"}>Blue</MenuItem>
+                      <MenuItem value={"#873B9C"}>Purple</MenuItem>
+                    </Select>
+                  </FormControl>
+                  {/* <Typography>Color : </Typography>
                   <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    sx={{ height: "40px" }}
+                    sx={{ height: "40px", width: "100px" }}
+                    id="settingColorToSet"
+                    label="settingColorToSetLabel"
                     value={colorToSet}
-                    label="colorToSet"
-                    onChange={(e: any) => { setColorToSet(e.target.value) }}
-                  >
-                    <MenuItem value={"#000000"}>Black</MenuItem>
-                    {/* <MenuItem value={"#0000FF"}>Blue</MenuItem> */}
-                    <MenuItem value={"#FF0000"}>Red</MenuItem>
-                    <MenuItem value={"#DB6600"}>Orange</MenuItem>
-                    <MenuItem value={"#FFED00"}>Yellow</MenuItem>
-                    <MenuItem value={"#76B80D"}>Green</MenuItem>
-                    <MenuItem value={"#007CB5"}>Blue</MenuItem>
-                    <MenuItem value={"#873B9C"}>Purple</MenuItem>
+                    // label="colorToSet"
+                    onChange={(e: SelectChangeEvent) => { alert("about to set!"); setColorToSet(e.target.value) }}
+                  > */}
 
-                  </Select>
+
+                  {/* </Select> */}
                 </Box>
                 <Typography sx={{ margin: "5px" }}>Width : </Typography>
                 <Slider
@@ -2184,22 +2190,22 @@ export default function SeatingChart() {
               <Typography level="body-md" sx={{ marginBottom: "9px" }}>
                 Special Notes:
               </Typography>
-              <Stack spacing={1.5} sx={{ alignItems: "center" }}>
+                  <FormControl size="small" >
                 <Select
                   multiple
-                  value={objAccommodations}
-                  onChange={updateObjAccommodations}
-                  sx={{ width: '300px' }}
-                >
-                  <Option value="front">Front</Option>
-                  <Option value="504">504</Option>
-                  <Option value="IEP">IEP</Option>
-                  <Option value="med">Med</Option>
-                  <Option value="E1">E1</Option>
-                  <Option value="E2">E2</Option>
-                  <Option value="E3">E3</Option>
-                </Select>
-              </Stack>
+                  sx={{ minWidth: "150px", maxWidth:"400px", backgroundColor: "white"  }}
+                      // id="set_color_to_set"
+                      // label="set_color_to_set_label"
+                      value={objAccommodations}
+                      onChange={(e: SelectChangeEvent) => { updateObjAccommodations(e) }}
+                    >
+                      <MenuItem value={"504"}>504</MenuItem>
+                      <MenuItem value={"med"}>Medical</MenuItem>
+                      <MenuItem value={"E1"}>Extra 1</MenuItem>
+                      <MenuItem value={"E2"}>Extra 2</MenuItem>
+                      <MenuItem value={"E3"}>Extra 3</MenuItem>
+                    </Select>
+                  </FormControl>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", margin: "15px" }}>
