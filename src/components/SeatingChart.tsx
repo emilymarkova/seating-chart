@@ -1,8 +1,5 @@
-import ChairAltIcon from '@mui/icons-material/ChairAlt';
 import EmergencyIcon from '@mui/icons-material/Emergency';
-import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import BallotIcon from '@mui/icons-material/Ballot';
-import CandlestickChartIcon from '@mui/icons-material/CandlestickChart';
 import Filter1Icon from '@mui/icons-material/Filter1';
 import Filter2Icon from '@mui/icons-material/Filter2';
 import Filter3Icon from '@mui/icons-material/Filter3';
@@ -13,9 +10,7 @@ import Typography from "@mui/joy/Typography";
 import { Rnd } from "react-rnd";
 import { v4 as uuidv4 } from 'uuid';
 import IconButton from '@mui/material/IconButton';
-import InputLabel from '@mui/material/InputLabel';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import Option from '@mui/joy/Option';
 import { Box } from '@mui/joy';
 import Slider from "@mui/joy/Slider";
 import { useRef } from "react";
@@ -1960,11 +1955,10 @@ export default function SeatingChart() {
                   <Typography>Color : </Typography>
                   <FormControl size="small">
                     <Select
-                      sx={{ width: "150px", height: "40px" }}
+                      sx={{ width: "150px", height: "40px",backgroundColor: "white" }}
                       // id="set_color_to_set"
                       // label="set_color_to_set_label"
                       value={colorToSet}
-                      sx={{ backgroundColor: "white" }}
                       onChange={(e: SelectChangeEvent) => { setColorToSet(e.target.value) }}
                     >
                       <MenuItem value={"#000000"}>Black</MenuItem>
