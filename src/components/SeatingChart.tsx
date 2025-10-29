@@ -18,7 +18,6 @@ import Button from "@mui/joy/Button";
 import { app } from "../firebase";
 import Snackbar from '@mui/joy/Snackbar';
 import Switch from '@mui/material/Switch';
-// import { doc, setDoc, } from 'firebase/firestore';
 import { getFirestore, getDoc, updateDoc, deleteDoc, setDoc, doc } from "firebase/firestore";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {
@@ -47,7 +46,6 @@ import { useEffect, useCallback } from 'react';
 import Modal from '@mui/joy/Modal';
 import ModalClose from '@mui/joy/ModalClose';
 import Sheet from '@mui/joy/Sheet';
-// import { updateClassExpression, updateInferTypeNode } from "typescript";
 
 const marks = [
   {
@@ -241,16 +239,9 @@ export default function SeatingChart() {
   const [openModal, setOpenModal] = useState(false);
   const [newClassName, setNewClassName] = useState('');
   const [copyIndex, setCopyIndex] = React.useState<number>(null);
-  // const [newItem, setNewItem] = useState('');
-  // const [openItemModal, setOpenItemModal] = useState(false);
-  // const [classToCopy, setClassToCopy] = useState(-1);//index2
 
   const handleAddClass = async () => {
     if (newClassName.trim() !== '') {
-      // const newClass = {
-      //   id: classNames.length + 1,
-      //   name: newClassName,
-      // };
       if (classNames.includes(newClassName)) {
         alert("Whoops! That name is already in the list of classes!");
         return;
@@ -283,53 +274,32 @@ export default function SeatingChart() {
   };
 
   const handleCopyClass = async (index) => {
-    // alert("index : " + index);
+
     let classNameToUse = newClassName.trim().replace(/[^a-zA-Z0-9_]/g, '_');
     if (classNameToUse.trim() !== '') {
-      // const newClass = {
-      //   id: classNames.length + 1,
-      //   name: newClassName,
-      // };
       if (classNames.includes(classNameToUse)) {
         alert("Whoops! That name is already in the list of classes!");
         return;
       }
 
       setClassNames([...classNames, classNameToUse]);
-      // saveEmpty(newClassName); going to save anyway later
-      //if duplicate
-      // setNewClassName(''); //this was causing issues since it was clearing it
-      // setOpenModal(false);
-
 
       const db = getFirestore(app);
       const auth = getAuth();
       const user = auth.currentUser;
 
       if (user) {
-        // alert("going to delete...");
         const uid = user.uid;
         let classToCopy = classNames[index];
-        // const subcollectionRef = collection(db, "users", uid, className);
         try {
-          // const res = await subcollectionRef.doc('info').delete();
-
-          // alert("class to copy : " + classToCopy);
           const docRef = doc(db, "users", uid, classToCopy, "info");
           const classToCopySnap = await getDoc(docRef);
-
-          // const newDocRef = doc(db, "users", uid, newClassName, "info");
-          // await deleteDoc(docRef);    
-
           const infoDocRef = doc(db, "users", uid, "classList", "info");
           const classListSnap = await getDoc(infoDocRef);
 
           if (classToCopySnap.exists()) {
-            // alert("it exists!");
 
             let docData = classToCopySnap.data();
-            // alert("data : " + JSON.stringify(docData, null, 2));
-            // alert("className : " + className);
 
             await setDoc(doc(db, "users", uid, classNameToUse, "info"), {
               createdAt: new Date(),
@@ -350,22 +320,11 @@ export default function SeatingChart() {
             const docData = classListSnap.data();
             const classes = Array.isArray(docData.classes) ? docData.classes : [];
             const updatedClasses = [...classes, classNameToUse]; //push returns length
-            // alert("classes : " + docData.classes);
             await updateDoc(infoDocRef, {
               classes: updatedClasses,
             });
             setClassNames(updatedClasses);
-            // setClassName(classNames[0]);
             updateClassList();
-
-            // setSelectedTab(updatedClasses.length - 1);
-            // setClassName(classNameToUse);
-            // updateInfoForCurrentClass();
-
-            // alert("className : " + className);
-            // alert("setting to 0; delete");
-            // setSelectedTab(0);
-            // updateInfoForCurrentClass();
 
           } else {
             alert("oops! it seemed like we couldn't find records of this class :(")
@@ -376,9 +335,6 @@ export default function SeatingChart() {
 
 
       }
-      // Select the new tab
-      // alert("setting to : " + classNames.length - 1);
-
 
     }
     setNewClassName('');
@@ -387,7 +343,6 @@ export default function SeatingChart() {
   };
 
   const handleDeleteClass = async (index) => {
-    // alert("index : " + index);
     let confirm = window.confirm("Are you sure you want to delete the class?");
     if (confirm) {
       if (classNames.length > 1) {
@@ -396,13 +351,9 @@ export default function SeatingChart() {
         const user = auth.currentUser;
 
         if (user) {
-          // alert("going to delete...");
           const uid = user.uid;
-          // const subcollectionRef = collection(db, "users", uid, className);
           try {
-            // const res = await subcollectionRef.doc('info').delete();
             let classToDelete = classNames[index];
-            // alert("about to delete : " + classToDelete);
             const docRef = doc(db, "users", uid, classToDelete, "info");
             await deleteDoc(docRef);
 
@@ -414,14 +365,11 @@ export default function SeatingChart() {
               const classes = docData.classes;
               const updatedClasses = classes.filter(item => item !== classToDelete && item.trim() !== "")
 
-              // alert("classes : " + docData.classes);
               await updateDoc(infoDocRef, {
                 classes: updatedClasses,
               });
               await updateClassList();
-              // await setClassNames(updatedClasses || []); // already udpated in update classList
 
-              // const classesArr = await updateClassList();
               let indexToSelect = selectedTab;
               if (selectedTab < index) {
                 //selecting the same thing; leave as is
@@ -429,10 +377,6 @@ export default function SeatingChart() {
                 indexToSelect = selectedTab - 1;
               }
 
-              // if (selectedTab >= classesArr.length) {
-              //   indexToSelect = classesArr.length - 1;
-              // }
-              // alert("index is : " + indexToSelect);
 
               setSelectedTab(indexToSelect);
 
@@ -466,13 +410,8 @@ export default function SeatingChart() {
         if (docSnap.exists()) {
           const docData = docSnap.data();
           let classesArr = docData.classes.filter(cls => cls.trim() !== '');
-          // let safeIndex = Math.max(0, Math.min(index, classesArr.length - 1));
 
           await setClassNames(classesArr);
-          // alert("classesArrwaef : " + JSON.stringify(classesArr, null, 2));
-          // setSelectedTab(safeIndex);
-          // setClassName(classesArr[safeIndex]);
-          // updateInfoForCurrentClass();
           return classesArr;
 
         } else {
@@ -519,7 +458,6 @@ export default function SeatingChart() {
           });
           setItems(items || []);
 
-          // setItems(docData.items || []);
           setFontSize(docData.fontSize || 12);
           setWidth(docData.setUp.width || 500);
           setHeight(docData.setUp.height || 400);
@@ -539,29 +477,16 @@ export default function SeatingChart() {
   useEffect(() => {
     const update = async () => {
       let classesArr = await updateClassList();
-      // setClassName(classNames[0]);
-      // alert("classesdas : " + JSON.stringify(classesArr[0], null, 2));
-
-      // setSelectedTab(0);
-      // alert("classesArr : " + JSON.stringify(classesArr, null, 2));
       await setClassName(classesArr[0]);
       setSelectedTab(0);
-      // updateInfoForCurrentClass(); already done in useEffect
-      // alert('updated');
-      // if (className) {
-      //   await updateInfoForCurrentClass();
-      // }
 
     }
     update()
       .catch(console.error);
-    // comment below to ignore the dependency warning!
-    // eslint-disable-next-line
   }, [])
 
   useEffect(() => {
     const update = async () => {
-      // alert("new class name: " + className);
       if (className && className !== "") {
         await updateInfoForCurrentClass();
       }
@@ -596,14 +521,7 @@ export default function SeatingChart() {
       if (classNames[selectedTab] && className !== classNames[selectedTab]) {
         setClassName(classNames[selectedTab]);
       }
-      // alert("className : " + className);
       updateInfoForCurrentClass();
-      // setItemHeight(400);
-      // setItemWidth(500);
-      // setDesks([]);
-      // setItems([]);
-
-      // setOpen(false);
 
 
     }
@@ -613,8 +531,6 @@ export default function SeatingChart() {
   }, [selectedTab]);
 
   useEffect((e: any) => {
-    // console.log("running");
-    // console.log(objAccommodations);
     function handleClick(e: any) {
       if (e.target && e.target === document.getElementById('tableArea')) {
         console.log("hmmmmmmm changing everything");
@@ -809,15 +725,6 @@ export default function SeatingChart() {
   };
 
   const addItem = () => {
-    // console.log("adding item");
-    // console.log("Adding item with properties:", {
-    //   shape: objShapeToAdd,
-    //   label: objLabel,
-    //   x: objX,
-    //   y: objY,
-    //   width: objWidth,
-    //   height: objHeight
-    // });
 
 
 
@@ -828,17 +735,6 @@ export default function SeatingChart() {
       })
     );
 
-    // setItems(prevItems => [...prevItems.map((item, i) => {
-    //     let itemCopy = new Item(false, item.getId(), item.getShape(), item.getName(), item.getXValue(), item.getYValue(), item.getWidthValue(), item.getHeightValue(), item.getColorValue());
-    //     return itemCopy;
-    //   }), new Item(true, uuidv4(),
-    //   objShapeToAdd,
-    //   objLabel,
-    //   objX,
-    //   objY,
-    //   objWidth,
-    //   objHeight, "#000000")]);
-    // console.log("new items: " + JSON.stringify(items, null, 2));
     const newItem = new Item(
       true,
       uuidv4(),
@@ -861,14 +757,6 @@ export default function SeatingChart() {
   };
 
   const addDesk = () => {
-    // console.log("adding desk");
-    // const accomidationElement = document.getElementById('specialAccommodations');
-    // let accommodations: string[];
-    // if (accomidationElement) {
-    //   accommodations = Array.from(accomidationElement.querySelectorAll('[aria-selected="true"]')).map((option) => option.getAttribute('data-value')).filter((value): value is string => value !== null);
-    // } else {
-    //   accommodations = [];
-    // }
     const newDesk = new Desk(true, uuidv4(), objShapeToAdd, objLabel, objX, objY, objWidth, objHeight, "#000000", objAccommodations, "");
     setCurrDesk(newDesk);
     setCurrItem(undefined);
@@ -1042,15 +930,6 @@ export default function SeatingChart() {
       }
 
       try {
-        // const itemsDocRef = doc(db, "users", uid, newClassName, "info");
-        //     const classDocRef = doc(db, "users", uid, newClassName);
-        // const itemsDocRef = doc(collection(classDocRef, "info"));
-        // const itemsDocRef = db.collection("users").doc(uid).collection(newClassName).doc("info");
-        // const itemsDocRef = doc(db, `users/${uid}/${newClassName}/info`);
-        // alert("deskss : " + JSON.stringify(serializedDesks, null, 2));
-
-        // alert("noewww : " + newClassName);
-        // alert("Will create path: " +  `users/${uid}/${newName}/info`);
 
         await setDoc(doc(db, "users", uid, newName, "info"), {
           createdAt: new Date(),
@@ -1115,14 +994,8 @@ export default function SeatingChart() {
         return;
       }
 
-      // } else {
-      //     alert("Invalid class name.");
-      //     return;
-      // }
 
       try {
-        // const itemsDocRef = doc(db, "users", uid, newClassName, "info");
-        // alert("Class name erg : " + newClassName);
         const itemsDocRef = doc(db, "users", uid, newClassName, "info")
 
 
@@ -1156,7 +1029,6 @@ export default function SeatingChart() {
       }
 
     }
-    // setOpenSavedAlert(true); no alert since this save is usually hidden
   }
   const setItemData = (item: Item) => {
     setObjToAdd("placeholder");
@@ -1441,10 +1313,6 @@ export default function SeatingChart() {
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "clip",
-                    //        textAlign: "center",
-                    // whiteSpace: "nowrap",
-                    // overflow: "hidden",
-                    // textOverflow: "clip",
                     paddingTop: "5px",
                     border: element.getActive() === true ? '1px solid blue' : `1px solid ${element.getColorValue()}`,
                     background: "#d9d9d9",
@@ -2194,7 +2062,7 @@ export default function SeatingChart() {
                       onChange={(e: SelectChangeEvent) => { updateObjAccommodations(e) }}
                     >
                       <MenuItem value={"504"}>504</MenuItem>
-                      <MenuItem value={"med"}>Medical</MenuItem>
+                      <MenuItem value={"medical"}>Medical</MenuItem>
                       <MenuItem value={"E1"}>Extra 1</MenuItem>
                       <MenuItem value={"E2"}>Extra 2</MenuItem>
                       <MenuItem value={"E3"}>Extra 3</MenuItem>
