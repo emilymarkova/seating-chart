@@ -1062,7 +1062,7 @@ export default function SeatingChart() {
 
       for (let i = 0; i < numberOfDesksToAdd; i++) {
         if (objToAdd !== "placeholder") {
-          desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, objWidth, objHeight, colorToSet, accommodations));
+          desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, objWidth, objHeight, colorToSet, []));
         } else {
           desksToAdd.push(new Desk(false, uuidv4(), objShapeToAdd, "student", 50, 50, 50, 50, "#000000", []));
         }
@@ -1823,7 +1823,7 @@ export default function SeatingChart() {
                   <Typography>Color : </Typography>
                   <FormControl size="small">
                     <Select
-                      sx={{ width: "150px", height: "40px",backgroundColor: "white" }}
+                      sx={{ width: "150px", height: "40px", backgroundColor: "white" }}
                       // id="set_color_to_set"
                       // label="set_color_to_set_label"
                       value={colorToSet}
@@ -2052,22 +2052,22 @@ export default function SeatingChart() {
               <Typography level="body-md" sx={{ marginBottom: "9px" }}>
                 Special Notes:
               </Typography>
-                  <FormControl size="small" >
+              <FormControl size="small" >
                 <Select
                   multiple
-                  sx={{ minWidth: "150px", maxWidth:"400px", backgroundColor: "white"  }}
-                      // id="set_color_to_set"
-                      // label="set_color_to_set_label"
-                      value={objAccommodations}
-                      onChange={(e: SelectChangeEvent) => { updateObjAccommodations(e) }}
-                    >
-                      <MenuItem value={"504"}>504</MenuItem>
-                      <MenuItem value={"medical"}>Medical</MenuItem>
-                      <MenuItem value={"E1"}>Extra 1</MenuItem>
-                      <MenuItem value={"E2"}>Extra 2</MenuItem>
-                      <MenuItem value={"E3"}>Extra 3</MenuItem>
-                    </Select>
-                  </FormControl>
+                  sx={{ minWidth: "150px", maxWidth: "400px", backgroundColor: "white" }}
+                  // id="set_color_to_set"
+                  // label="set_color_to_set_label"
+                  value={objAccommodations}
+                  onChange={(e: SelectChangeEvent) => { updateObjAccommodations(e) }}
+                >
+                  <MenuItem value={"504"}>504</MenuItem>
+                  <MenuItem value={"medical"}>Medical</MenuItem>
+                  <MenuItem value={"E1"}>Extra 1</MenuItem>
+                  <MenuItem value={"E2"}>Extra 2</MenuItem>
+                  <MenuItem value={"E3"}>Extra 3</MenuItem>
+                </Select>
+              </FormControl>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", margin: "15px" }}>
