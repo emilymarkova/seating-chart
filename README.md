@@ -1,5 +1,7 @@
 # Getting Started with Create React App
 
+The app is currently available at the link https://seating-chart-1a1a1.web.app
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
